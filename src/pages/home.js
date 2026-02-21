@@ -17,6 +17,14 @@ export class Home {
           </a>
         </div>
       </section>
+
+      <!-- Transparent Overlay Panel -->
+      <div class="overlay-panel">
+        <blockquote class="overlay-quote">
+          <p>"Cause a little bit of summer's what the whole year's all about."</p>
+          <footer>—John Mayer</footer>
+        </blockquote>
+      </div>
     `;
     
     return container;

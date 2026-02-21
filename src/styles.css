@@ -1,7 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&display=swap');
+
 /* Root CSS Variables for Consistent Color Scheme */
 :root {
   --primary-color: #2c5f8d;      /* Deep Blue */
-  --secondary-color: #f39c12;     /* Warm Gold */
+  --secondary-color: #FA7F70;     /* Warm Gold */
   --accent-color: #27ae60;        /* Green */
   --light-bg: #f8f9fa;            /* Light Gray */
   --dark-text: #2c3e50;           /* Dark Blue-Gray */
@@ -73,10 +75,9 @@ a:hover {
 }
 
 .navbar .navbar-brand {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.7rem;
+  font-weight: 500;
   color: #ffffff !important;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -87,11 +88,12 @@ a:hover {
 }
 
 .navbar .nav-link {
-  color: #ffffff !important;
+  color: #1D546D !important;
   font-weight: 500;
+  font-size: 1.4rem;
   position: relative;
   transition: color 0.3s ease;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 1px 3px rgba(255, 255, 255, 0.8);
 }
 
 .navbar .nav-link:hover,
@@ -115,13 +117,15 @@ a:hover {
   background: transparent;
   color: var(--white);
   padding: 4rem 2rem;
-  text-align: center;
+  text-align: left;
   position: relative;
   overflow: hidden;
-  flex: 1;
+  width: 60%;
+  height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
 }
 
 .hero::before {
@@ -137,8 +141,9 @@ a:hover {
   position: relative;
   z-index: 2;
   padding: 0 2rem;
-  max-width: 800px;
-  margin: 0 auto;
+  max-width: 100%;
+  text-align: center;
+  font-family: 'Lora', serif;
 }
 
 .hero h1 {
@@ -160,6 +165,45 @@ a:hover {
 .hero h1 + p {
   font-size: 1.3rem;
   margin-bottom: 2rem;
+}
+
+/* Overlay Panel */
+.overlay-panel {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 40%;
+  height: 100%;
+  background: rgba(244, 240, 228, 0.55);
+  z-index: 999;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.overlay-quote {
+  text-align: center;
+  color: var(--dark-text);
+  font-style: italic;
+  font-family: 'Lucida Handwriting', 'Brush Script MT', cursive;
+  padding: 0 3.5rem;
+  margin: 2rem 0;
+}
+
+.overlay-quote p {
+  font-size: 1.5rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+}
+
+.overlay-quote footer {
+  font-size: 1.1rem;
+  font-style: normal;
+  color: var(--dark-text);
+  font-weight: 600;
 }
 
 /* Cards */
@@ -715,4 +759,159 @@ footer {
   background: rgba(243, 156, 18, 0.1);
   color: #f39c12;
   border-left: 4px solid #f39c12;
+}
+/* Responsive Design - Mobile/Tablets */
+@media (max-width: 768px) {
+  /* Page container - ensure proper stacking on mobile */
+  .page-enter {
+    flex-direction: column;
+    height: auto;
+  }
+
+  /* Hero Section - Full width on mobile */
+  .hero {
+    width: 100%;
+    height: 60vh;
+    padding: 3rem 1.5rem;
+    flex-direction: column;
+  }
+
+  .hero-content {
+    padding: 1.5rem;
+  }
+
+  .hero h1 {
+    font-size: 1.5rem;
+  }
+
+  .hero p {
+    font-size: 0.9rem;
+  }
+
+  /* Overlay Panel - Below hero on mobile */
+  .overlay-panel {
+    position: static;
+    width: 100%;
+    height: 30vh;
+    background: rgba(244, 240, 228, 0.8);
+    padding: 2rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .overlay-quote {
+    padding: 0 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .overlay-quote p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+
+  .overlay-quote footer {
+    font-size: 0.9rem;
+  }
+
+  /* Navbar adjustments for mobile */
+  .navbar .navbar-brand {
+    font-size: 1.1rem;
+  }
+
+  .navbar .nav-link {
+    font-size: 1rem;
+  }
+
+  /* Hamburger menu styling */
+  .navbar-toggler {
+    border: none;
+    padding: 0.5rem;
+  }
+
+  .navbar-toggler:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .navbar-toggler-icon {
+    width: 1.5rem;
+    height: 1.5rem;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%231D546D' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  }
+
+  .navbar-collapse {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 0 0 8px 8px;
+    padding: 1rem 0;
+  }
+
+  .navbar-nav {
+    text-align: center;
+    gap: 0;
+  }
+
+  .nav-item {
+    padding: 0.5rem 0;
+  }
+
+  /* Footer adjustments for mobile */
+  footer {
+    padding: 0 2rem 1rem;
+  }
+}
+
+/* Extra small screens - phones under 400px */
+@media (max-width: 400px) {
+  /* Hide overlay panel on very small screens */
+  .overlay-panel {
+    display: none;
+  }
+
+  /* Hero Section - Full height for very small screens */
+  .hero {
+    height: 100vh;
+    padding: 1.5rem 0.75rem;
+  }
+
+  .hero-content {
+    padding: 0.75rem;
+  }
+
+  .hero h1 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .hero p {
+    font-size: 0.8rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Navbar adjustments for very small screens */
+  .navbar .navbar-brand {
+    font-size: 1rem;
+  }
+
+  .navbar .nav-link {
+    font-size: 0.9rem;
+  }
+
+  .navbar-toggler {
+    padding: 0.25rem;
+  }
+
+  .navbar-toggler-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .navbar-collapse {
+    padding: 0.75rem 0;
+  }
+
+  .btn-secondary {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
 }
