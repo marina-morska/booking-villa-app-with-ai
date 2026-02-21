@@ -6,7 +6,6 @@ import { renderNavbar, renderFooter } from './components/layout.js';
 import { Home } from './pages/home.js';
 import { Booking } from './pages/booking.js';
 import { Gallery } from './pages/gallery.js';
-import { Amenities } from './pages/amenities.js';
 import { Reviews } from './pages/reviews.js';
 import { Contacts } from './pages/contacts.js';
 
@@ -18,7 +17,6 @@ class App {
       '/home': Home,
       '/booking': Booking,
       '/gallery': Gallery,
-      '/amenities': Amenities,
       '/reviews': Reviews,
       '/contacts': Contacts
     };
