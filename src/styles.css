@@ -26,6 +26,8 @@
 
 html {
   scroll-behavior: smooth;
+  background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+    url('../images/background-home.jpg') center / cover no-repeat fixed;
 }
 
 body {
@@ -35,16 +37,19 @@ body {
   line-height: 1.6;
 }
 
-html, body, #app {
+html, body {
+  height: 100%;
+}
+
+#app {
   height: 100%;
 }
 
 .app {
   display: flex;
   flex-direction: column;
-  min-height: 100%;
-  background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
-    url('../images/background-home.jpg') center / cover no-repeat fixed;
+  height: 100%;
+  min-height: 100vh;
 }
 
 /* Typography */
@@ -149,16 +154,18 @@ a:hover {
 .hero h1 {
   color: var(--white);
   font-size: 2.5rem;
+  font-weight: 700;
   margin-bottom: 1.5rem;
-  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
   line-height: 1.2;
 }
 
 .hero p {
+  color: var(--white);
   font-size: 1.1rem;
   margin-bottom: 1.5rem;
-  opacity: 0.95;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  opacity: 1;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.7);
   line-height: 1.6;
 }
 
@@ -592,7 +599,7 @@ a:hover {
 footer {
   background: transparent;
   color: var(--white);
-  padding: 3rem 2rem 1rem;
+  padding: 3rem 2rem 3rem;
   margin-top: 0;
 }
 
