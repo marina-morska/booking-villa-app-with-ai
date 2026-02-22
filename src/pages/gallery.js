@@ -1,40 +1,49 @@
 export class Gallery {
   constructor() {
     this.galleryImages = [
-      { id: 1, title: 'Main Living Room', category: 'interior' },
-      { id: 2, title: 'Master Bedroom', category: 'bedroom' },
-      { id: 3, title: 'Beachfront View', category: 'exterior' },
-      { id: 4, title: 'Modern Kitchen', category: 'interior' },
-      { id: 5, title: 'Private Pool', category: 'exterior' },
-      { id: 6, title: 'Guest Suite', category: 'bedroom' },
-      { id: 7, title: 'Dining Area', category: 'interior' },
-      { id: 8, title: 'Beach Access', category: 'exterior' },
-      { id: 9, title: 'Terrace Sunset', category: 'exterior' },
-      { id: 10, title: 'Spa & Wellness', category: 'amenities' },
-      { id: 11, title: 'Movie Theater', category: 'amenities' },
-      { id: 12, title: 'Scenic Surroundings', category: 'exterior' }
+      { id: 1, title: 'Villa 1', src: '../images/1_villa_1.jpg', category: 'exterior' },
+      { id: 2, title: 'Villa 2', src: '../images/2_villa_2.jpg', category: 'exterior' },
+      { id: 3, title: 'Villa 3', src: '../images/3_villa_3.jpg', category: 'exterior' },
+      { id: 4, title: 'Villa 4', src: '../images/4_villa_4.jpg', category: 'exterior' },
+      { id: 5, title: 'Villa 5', src: '../images/5_villa_5.jpg', category: 'exterior' },
+      { id: 6, title: 'Exterior 5', src: '../images/6_exterior_5.jpg', category: 'exterior' },
+      { id: 7, title: 'Exterior 6', src: '../images/7_exterior_6.jpg', category: 'exterior' },
+      { id: 8, title: 'Exterior 1', src: '../images/8_exterior_1.jpg', category: 'exterior' },
+      { id: 9, title: 'Exterior 2', src: '../images/9_exterior_2.jpg', category: 'exterior' },
+      { id: 10, title: 'Exterior 7', src: '../images/10_exterior_7.jpg', category: 'exterior' },
+      { id: 11, title: 'Exterior 3', src: '../images/11_exterior_3.jpg', category: 'exterior' },
+      { id: 12, title: 'Room 1', src: '../images/12_room_1.jpg', category: 'bedroom' },
+      { id: 13, title: 'Room 2', src: '../images/13_room_2.jpg', category: 'bedroom' },
+      { id: 14, title: 'Room 3', src: '../images/14_room_3.jpg', category: 'bedroom' },
+      { id: 15, title: 'Kitchen', src: '../images/15_kitchen.jpg', category: 'interior' },
+      { id: 16, title: 'Living Room 1', src: '../images/16_living_room_1.jpg', category: 'interior' },
+      { id: 17, title: 'Living Room 2', src: '../images/17_living_room_2.jpg', category: 'interior' },
+      { id: 18, title: 'Staircase', src: '../images/18_staircase.jpg', category: 'interior' },
+      { id: 19, title: 'Bathroom 1', src: '../images/19_bathroom_1.jpg', category: 'interior' },
+      { id: 20, title: 'Bathroom 2', src: '../images/20_bathroom_2.jpg', category: 'interior' },
+      { id: 21, title: 'Bathroom 3', src: '../images/21_bathroom_3.jpg', category: 'interior' },
+      { id: 22, title: 'Pool 1', src: '../images/22_pool_1.jpg', category: 'amenities' },
+      { id: 23, title: 'Pool 3', src: '../images/23_pool_3.jpg', category: 'amenities' },
+      { id: 24, title: 'Pool 4', src: '../images/24_pool_4.jpg', category: 'amenities' },
+      { id: 25, title: 'Pool 5', src: '../images/25_pool_5.jpg', category: 'amenities' },
+      { id: 26, title: 'Pool 6', src: '../images/26_pool_6.jpg', category: 'amenities' },
+      { id: 27, title: 'Pool 7', src: '../images/27_pool_7.jpg', category: 'amenities' },
+      { id: 28, title: 'Pool 8', src: '../images/28_pool_8.jpg', category: 'amenities' },
+      { id: 29, title: 'Pool Bar 1', src: '../images/29_pool_bar_1.jpg', category: 'amenities' },
+      { id: 30, title: 'Pool Bar 2', src: '../images/30_pool_bar_2.jpg', category: 'amenities' },
+      { id: 31, title: 'Pool Bar 4', src: '../images/31_pool_bar_4.jpg', category: 'amenities' },
+      { id: 32, title: 'Terrace', src: '../images/32_terrace.jpg', category: 'exterior' }
     ];
+    this.currentImageIndex = 0;
   }
 
   async render() {
     const container = document.createElement('div');
     container.className = 'page-enter';
     
-    const filterButtons = `
-      <div class="d-flex gap-2 justify-content-center mb-5 flex-wrap">
-        <button class="btn btn-outline-primary filter-btn active" data-filter="all">All Photos</button>
-        <button class="btn btn-outline-primary filter-btn" data-filter="interior">Interior</button>
-        <button class="btn btn-outline-primary filter-btn" data-filter="bedroom">Bedrooms</button>
-        <button class="btn btn-outline-primary filter-btn" data-filter="exterior">Exterior</button>
-        <button class="btn btn-outline-primary filter-btn" data-filter="amenities">Amenities</button>
-      </div>
-    `;
-    
     const galleryGrid = this.galleryImages.map(img => `
-      <div class="gallery-item" data-category="${img.category}">
-        <div class="placeholder-image" style="background: linear-gradient(135deg, #2c5f8d, #1f4d6d); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem;">
-          <i class="bi bi-image"></i>
-        </div>
+      <div class="gallery-item" data-category="${img.category}" data-src="${img.src}" data-title="${img.title}">
+        <img src="${img.src}" alt="${img.title}" />
         <div class="gallery-overlay">
           <div class="gallery-overlay-icon">
             <i class="bi bi-zoom-in"></i>
@@ -45,24 +54,36 @@ export class Gallery {
     
     container.innerHTML = `
       <!-- Hero Section -->
-      <section class="hero">
+      <section class="hero" style="background-color: #FFEDC7;">
         <div class="hero-content">
           <h1>Villa Gallery</h1>
           <p>Explore the beauty and elegance of Villa Paradise</p>
         </div>
       </section>
 
-      <!-- Filters Section -->
-      <section class="container my-5">
-        ${filterButtons}
-      </section>
-
       <!-- Gallery Section -->
-      <section class="container mb-5">
-        <div class="gallery-grid" id="gallery-grid">
+      <section style="background-color: #FFEDC7; padding: 2rem;">
+        <div class="container">
+          <div class="gallery-grid" id="gallery-grid">
           ${galleryGrid}
         </div>
+        </div>
       </section>
+
+      <!-- Lightbox Modal -->
+      <div id="lightbox" class="lightbox">
+        <button class="lightbox-nav lightbox-prev" id="lightbox-prev">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <span class="lightbox-close">&times;</span>
+        <img class="lightbox-image" src="" alt="" />
+        <button class="lightbox-nav lightbox-next" id="lightbox-next">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+        <div class="lightbox-counter">
+          <span id="lightbox-current">1</span> / <span id="lightbox-total">${this.galleryImages.length}</span>
+        </div>
+      </div>
 
       <!-- Gallery Description -->
       <section class="bg-light py-5 mb-0">
@@ -74,11 +95,11 @@ export class Gallery {
               <ul class="list-unstyled">
                 <li class="mb-2">
                   <i class="bi bi-check-circle text-success me-2"></i>
-                  <strong>5 Luxurious Bedrooms</strong> - Each with premium bedding and views
+                  <strong>3 Luxurious Bedrooms</strong> - Each with premium bedding and views
                 </li>
                 <li class="mb-2">
                   <i class="bi bi-check-circle text-success me-2"></i>
-                  <strong>4 Elegant Bathrooms</strong> - With spa-like amenities
+                  <strong>4 Elegant Bathrooms</strong> 
                 </li>
                 <li class="mb-2">
                   <i class="bi bi-check-circle text-success me-2"></i>
@@ -92,23 +113,27 @@ export class Gallery {
             </div>
             <div class="col-lg-6">
               <h2>Exterior Paradise</h2>
-              <p class="lead">Experience the natural beauty of our location with direct beach access and stunning ocean views.</p>
+              <p class="lead">Experience the natural beauty of our location.</p>
               <ul class="list-unstyled">
                 <li class="mb-2">
                   <i class="bi bi-check-circle text-success me-2"></i>
-                  <strong>Private Beach Access</strong> - Exclusive shoreline
+                  <strong>Luxurious Swimming Pool</strong> - Large, heated swimming pool with jacuzzi.
                 </li>
                 <li class="mb-2">
                   <i class="bi bi-check-circle text-success me-2"></i>
-                  <strong>Infinity Pool</strong> - With ocean views
+                  <strong>Pool bar</strong> - Casual poolside bar offering free beer and coffee for your stay.
                 </li>
                 <li class="mb-2">
                   <i class="bi bi-check-circle text-success me-2"></i>
-                  <strong>Tropical Gardens</strong> - Lush and beautifully landscaped
+                  <strong>Children’s play area</strong> - Safe space with toys and equipment suitable for toddlers and young kids, children's pool.
                 </li>
                 <li class="mb-2">
                   <i class="bi bi-check-circle text-success me-2"></i>
-                  <strong>Outdoor Dining</strong> - Sunset terraces and lounging areas
+                  <strong>Outdoor Dining</strong> - BBQ area and dining area.
+                </li>
+                <li class="mb-2">
+                  <i class="bi bi-check-circle text-success me-2"></i>
+                  <strong>Parking, Wi-Fi</strong> - Convenient parking and high-speed internet access.
                 </li>
               </ul>
             </div>
@@ -120,114 +145,84 @@ export class Gallery {
     // Set up filter functionality after rendering
     setTimeout(() => {
       this.setupFilters();
+      this.setupLightboxCarousel();
     }, 0);
     
     return container;
   }
 
   setupFilters() {
-    const filterButtons = document.querySelectorAll('.filter-btn');
+    // Filters removed
+  }
+
+  setupLightboxCarousel() {
+    this.setupLightboxNav();
+  }
+
+  setupLightboxNav() {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxPrev = document.getElementById('lightbox-prev');
+    const lightboxNext = document.getElementById('lightbox-next');
+    const lightboxClose = document.querySelector('.lightbox-close');
     const galleryItems = document.querySelectorAll('.gallery-item');
     
-    filterButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        // Update active button
-        filterButtons.forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-        
-        const filterValue = button.getAttribute('data-filter');
-        
-        // Filter gallery items
-        galleryItems.forEach(item => {
-          if (filterValue === 'all' || item.getAttribute('data-category') === filterValue) {
-            item.style.display = '';
-            setTimeout(() => {
-              item.style.opacity = '1';
-            }, 10);
-          } else {
-            item.style.opacity = '0.3';
-            setTimeout(() => {
-              item.style.display = 'none';
-            }, 300);
-          }
-        });
+    // Open lightbox when clicking gallery items
+    galleryItems.forEach((item, index) => {
+      item.addEventListener('click', () => {
+        this.currentImageIndex = index;
+        this.openLightbox();
       });
     });
     
-    // Set up lightbox functionality
-    galleryItems.forEach(item => {
-      item.addEventListener('click', () => {
-        const title = item.querySelector('.gallery-overlay').previousElementSibling?.alt || 'Villa Paradise';
-        this.openLightbox(item);
-      });
+    lightboxPrev.addEventListener('click', () => {
+      this.currentImageIndex = (this.currentImageIndex - 1 + this.galleryImages.length) % this.galleryImages.length;
+      this.updateLightboxImage();
+    });
+    
+    lightboxNext.addEventListener('click', () => {
+      this.currentImageIndex = (this.currentImageIndex + 1) % this.galleryImages.length;
+      this.updateLightboxImage();
+    });
+    
+    lightboxClose.addEventListener('click', () => {
+      lightbox.style.display = 'none';
+    });
+    
+    lightbox.addEventListener('click', (e) => {
+      if (e.target === lightbox) {
+        lightbox.style.display = 'none';
+      }
+    });
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (lightbox.style.display === 'flex') {
+        if (e.key === 'ArrowLeft') {
+          this.currentImageIndex = (this.currentImageIndex - 1 + this.galleryImages.length) % this.galleryImages.length;
+          this.updateLightboxImage();
+        } else if (e.key === 'ArrowRight') {
+          this.currentImageIndex = (this.currentImageIndex + 1) % this.galleryImages.length;
+          this.updateLightboxImage();
+        } else if (e.key === 'Escape') {
+          lightbox.style.display = 'none';
+        }
+      }
     });
   }
 
-  openLightbox(item) {
-    // Create modal
-    const modal = document.createElement('div');
-    modal.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      animation: fadeIn 0.3s ease;
-    `;
+  openLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.style.display = 'flex';
+    this.updateLightboxImage();
+  }
+
+  updateLightboxImage() {
+    const image = this.galleryImages[this.currentImageIndex];
+    const lightboxImage = document.querySelector('.lightbox-image');
+    const currentImageSpan = document.getElementById('lightbox-current');
     
-    modal.innerHTML = `
-      <div style="position: relative; max-width: 90vw; max-height: 90vh;">
-        <button style="
-          position: absolute;
-          top: -40px;
-          right: 0;
-          background: none;
-          border: none;
-          color: white;
-          font-size: 2rem;
-          cursor: pointer;
-          padding: 0;
-          width: 40px;
-          height: 40px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        " class="close-lightbox">
-          <i class="bi bi-x"></i>
-        </button>
-        <div style="
-          background: linear-gradient(135deg, #2c5f8d, #1f4d6d);
-          width: 600px;
-          height: 400px;
-          max-width: 90vw;
-          max-height: 80vh;
-          border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 4rem;
-        ">
-          <i class="bi bi-image"></i>
-        </div>
-      </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    modal.querySelector('.close-lightbox').addEventListener('click', () => {
-      modal.remove();
-    });
-    
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal.remove();
-      }
-    });
+    lightboxImage.src = image.src;
+    lightboxImage.alt = image.title;
+    currentImageSpan.textContent = this.currentImageIndex + 1;
   }
 }
