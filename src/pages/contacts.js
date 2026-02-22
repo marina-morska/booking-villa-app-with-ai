@@ -17,7 +17,7 @@ export class Contacts {
     
     container.innerHTML = `
       <!-- Hero Section -->
-      <section class="hero">
+      <section class="hero" style="background-color: #FFEDC7;">
         <div class="hero-content">
           <h1>Contact Us</h1>
           <p>Get in touch with our team for any inquiries or assistance</p>
@@ -25,13 +25,14 @@ export class Contacts {
       </section>
 
       <!-- Contact Section -->
-      <div class="container my-5">
-        <div class="row">
+      <section style="background-color: #FFEDC7; padding: 3rem 0;">
+        <div class="container">
+          <div class="row">
           <!-- Contact Form -->
           <div class="col-lg-8 mx-auto">
             <div class="card border-0 shadow-sm">
               <div class="card-header">
-                <h3 class="mb-0">Send us a Message</h3>
+                <h3 class="mb-0" style="color: white;">Send us a Message</h3>
               </div>
               <div class="card-body">
                 <form id="contact-form">
@@ -92,10 +93,10 @@ export class Contacts {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       <!-- Map Section -->
-      <section class="my-5">
+      <section style="background-color: #FFEDC7; padding: 3rem 0;">
         <div class="container">
           <h2 class="text-center mb-4">Our Location</h2>
           <div class="contact-map" id="map-container">
@@ -103,7 +104,7 @@ export class Contacts {
               width="100%" 
               height="400" 
               style="border: none; border-radius: 12px;"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3022.1098141961806!2d-74.00601492345055!3d40.71282314254718!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25a22a3855555%3A0xb89d1fe6bc499443!2sEmpire%20State%20Building!5e0!3m2!1sen!2sus!4v1234567890123"
+              src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d2952.1380219975476!2d27.734583999999998!3d42.275577!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDLCsDE2JzMyLjEiTiAyN8KwNDQnMDQuNSJF!5e0!3m2!1sen!2sbg!4v1771769612015!5m2!1sen!2sbg"
               allowfullscreen="" 
               loading="lazy" 
               referrerpolicy="no-referrer-when-downgrade">
@@ -117,50 +118,62 @@ export class Contacts {
         <div class="container">
           <h2 class="text-center mb-5">Frequently Asked Questions</h2>
           <div class="row">
-            <div class="col-lg-6 mb-4">
-              <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                  <h5 class="card-title">
-                    <i class="bi bi-question-circle text-primary me-2"></i>
-                    What is your cancellation policy?
-                  </h5>
-                  <p class="card-text">We offer free cancellation up to 7 days before your check-in date. Cancellations within 7 days may incur a fee.</p>
+            <div class="col-lg-8 mx-auto">
+              <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="faqHeading1">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="true" aria-controls="faqCollapse1">
+                      <i class="bi bi-question-circle text-primary me-2"></i>
+                      What is your cancellation policy?
+                    </button>
+                  </h2>
+                  <div id="faqCollapse1" class="accordion-collapse collapse show" aria-labelledby="faqHeading1" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                      We offer free cancellation up to 7 days before your check-in date. Cancellations within 7 days may incur a fee.
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <div class="col-lg-6 mb-4">
-              <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                  <h5 class="card-title">
-                    <i class="bi bi-question-circle text-primary me-2"></i>
-                    Do you offer airport transfers?
-                  </h5>
-                  <p class="card-text">Yes! We provide complimentary airport transfer services for all guests. Contact us with your flight details.</p>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="faqHeading2">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2">
+                      <i class="bi bi-question-circle text-primary me-2"></i>
+                      Do you offer airport transfers?
+                    </button>
+                  </h2>
+                  <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                      Yes! We provide complimentary airport transfer services for all guests. Contact us with your flight details.
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <div class="col-lg-6 mb-4">
-              <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                  <h5 class="card-title">
-                    <i class="bi bi-question-circle text-primary me-2"></i>
-                    Are pets allowed?
-                  </h5>
-                  <p class="card-text">Pets are welcome! Please notify us in advance and a small pet fee may apply.</p>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="faqHeading3">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3">
+                      <i class="bi bi-question-circle text-primary me-2"></i>
+                      Are pets allowed?
+                    </button>
+                  </h2>
+                  <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                      Pets are welcome! Please notify us in advance and a small pet fee may apply.
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            <div class="col-lg-6 mb-4">
-              <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                  <h5 class="card-title">
-                    <i class="bi bi-question-circle text-primary me-2"></i>
-                    What payment methods do you accept?
-                  </h5>
-                  <p class="card-text">We accept all major credit cards, PayPal, and bank transfers. Flexible payment plans available.</p>
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="faqHeading4">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4">
+                      <i class="bi bi-question-circle text-primary me-2"></i>
+                      What payment methods do you accept?
+                    </button>
+                  </h2>
+                  <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                      We accept all major credit cards, PayPal, and bank transfers. Flexible payment plans available.
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
