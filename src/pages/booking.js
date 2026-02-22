@@ -19,114 +19,51 @@ export class Booking {
 
   async render() {
     const container = document.createElement('div');
-    container.className = 'page-enter';
+    container.className = 'page-enter booking-page';
     
     const html = `
-      <!-- Hero Section -->
-      <section class="hero">
-        <div class="hero-content">
+      <!-- Header Section -->
+      <section class="booking-header">
+        <div class="booking-header-content">
           <h1>Book Your Stay</h1>
           <p>Select your dates and reserve your perfect getaway</p>
         </div>
       </section>
 
       <!-- Main Content -->
-      <div class="container my-5">
-        <div class="row">
-          <!-- Calendar Section -->
-          <div class="col-lg-6 mb-5">
-            <div id="calendar" class="calendar"></div>
-          </div>
-
-          <!-- Booking Form Section -->
-          <div class="col-lg-6">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="mb-0">Booking Details</h3>
-              </div>
-              <div class="card-body">
-                <form id="booking-form">
-                  <!-- Selected Dates -->
-                  <div class="form-group">
-                    <label class="form-label">Check-in Date</label>
-                    <input type="text" id="checkin-date" class="form-control" readonly placeholder="Select start date">
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">Check-out Date</label>
-                    <input type="text" id="checkout-date" class="form-control" readonly placeholder="Select end date">
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">Number of Nights</label>
-                    <input type="text" id="nights-count" class="form-control" readonly placeholder="0">
-                  </div>
-
-                  <!-- Divider -->
-                  <hr>
-
-                  <!-- Guest Information -->
-                  <h5 class="mb-3">Guest Information</h5>
-
-                  <div class="form-group">
-                    <label class="form-label" for="guest-name">Full Name *</label>
-                    <input type="text" id="guest-name" class="form-control" placeholder="Enter your full name" required>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label" for="guest-email">Email Address *</label>
-                    <input type="email" id="guest-email" class="form-control" placeholder="Enter your email" required>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label" for="guest-phone">Phone Number *</label>
-                    <input type="tel" id="guest-phone" class="form-control" placeholder="Enter your phone number" required>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label" for="guest-notes">Special Requests</label>
-                    <textarea id="guest-notes" class="form-control" rows="4" placeholder="Any special requests or requirements?"></textarea>
-                  </div>
-
-                  <!-- Price Summary -->
-                  <hr>
-                  <div class="mb-3">
-                    <div class="d-flex justify-content-between mb-2">
-                      <span>Price per night:</span>
-                      <span><strong>$250</strong></span>
-                    </div>
-                    <div class="d-flex justify-content-between mb-3">
-                      <span>Total Price:</span>
-                      <span id="total-price"><strong>$0</strong></span>
-                    </div>
-                  </div>
-
-                  <!-- Alerts -->
-                  <div id="form-alerts"></div>
-
-                  <!-- Submit Button -->
-                  <button type="submit" class="btn btn-primary w-100 btn-lg">
-                    <i class="bi bi-check-circle"></i> Complete Booking
-                  </button>
-
-                  <p class="text-muted mt-3 mb-0 text-center small">
-                    Your booking is secure and confidential
-                  </p>
-                </form>
-              </div>
+      <div class="booking-content">
+        <div class="container booking-bar-wrapper">
+          <form class="booking-bar" aria-label="Quick booking">
+            <div class="booking-field">
+              <label for="booking-guests">Guest(s) *</label>
+              <select id="booking-guests" class="booking-input" aria-label="Guests">
+                <option value="" selected>How Many</option>
+                <option value="1">1 Guest</option>
+                <option value="2">2 Guests</option>
+                <option value="3">3 Guests</option>
+                <option value="4">4 Guests</option>
+                <option value="5">5 Guests</option>
+                <option value="6">6 Guests</option>
+              </select>
             </div>
-          </div>
+
+            <div class="booking-field">
+              <label for="booking-checkin">Check in *</label>
+              <input id="booking-checkin" class="booking-input" type="date" placeholder="Select Date">
+            </div>
+
+            <div class="booking-field">
+              <label for="booking-checkout">Check out *</label>
+              <input id="booking-checkout" class="booking-input" type="date" placeholder="Select Date">
+            </div>
+
+            <button class="booking-cta" type="button">Book Now</button>
+          </form>
         </div>
       </div>
     `;
     
     container.innerHTML = html;
-    
-    // Initialize calendar after rendering
-    setTimeout(() => {
-      this.initializeCalendar();
-      this.setupFormHandlers();
-    }, 0);
     
     return container;
   }
