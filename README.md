@@ -89,6 +89,24 @@ A modern, responsive multipage villa booking application built with vanilla Java
    npm run preview
    ```
 
+8. **Upload all local gallery images to Supabase Storage (one-time/whenever needed)**
+   ```bash
+   SUPABASE_SERVICE_ROLE_KEY=... npm run upload:gallery
+   ```
+   This uploads files from `images/` to bucket `villa-photos` and syncs `photos.storage_path`.
+   On Windows PowerShell:
+   ```powershell
+   $env:SUPABASE_SERVICE_ROLE_KEY="..."; npm run upload:gallery
+   ```
+   Or use admin credentials (no service role key):
+   ```powershell
+   $env:SUPABASE_ADMIN_EMAIL="admin@example.com"; $env:SUPABASE_ADMIN_PASSWORD="your-password"; npm run upload:gallery
+   ```
+   To re-create bucket content exactly from local `images/` order and names:
+   ```powershell
+   $env:CLEAN_GALLERY_BUCKET="true"; $env:SUPABASE_ADMIN_EMAIL="admin@example.com"; $env:SUPABASE_ADMIN_PASSWORD="your-password"; npm run upload:gallery
+   ```
+
 ## 📁 Project Structure
 
 ```

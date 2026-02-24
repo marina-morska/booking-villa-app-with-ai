@@ -1,4 +1,5 @@
 import { createContactMessage } from '../services/contactService.js';
+import { getAuthState } from '../services/authService.js';
 
 export class Contacts {
   constructor() {
@@ -39,19 +40,21 @@ export class Contacts {
               <div class="card-body">
                 <form id="contact-form">
                   <div class="row">
-                    <div class="col-md-6">
+                    <div class="col-md-6" id="contact-name-group">
                       <div class="form-group">
                         <label class="form-label" for="contact-name">Full Name *</label>
                         <input type="text" id="contact-name" class="form-control" placeholder="Your name" required>
                       </div>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-6" id="contact-email-group">
                       <div class="form-group">
                         <label class="form-label" for="contact-email">Email Address *</label>
                         <input type="email" id="contact-email" class="form-control" placeholder="Your email" required>
                       </div>
                     </div>
                   </div>
+
+                  <div id="contact-auth-info"></div>
 
                   <div class="form-group">
                     <label class="form-label" for="contact-phone">Phone Number</label>
@@ -73,15 +76,6 @@ export class Contacts {
                   <div class="form-group">
                     <label class="form-label" for="contact-message">Message *</label>
                     <textarea id="contact-message" class="form-control" rows="6" placeholder="Tell us your message..." required></textarea>
-                  </div>
-
-                  <div class="form-group">
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="contact-newsletter">
-                      <label class="form-check-label" for="contact-newsletter">
-                        Subscribe to our newsletter for updates and special offers
-                      </label>
-                    </div>
                   </div>
 
                   <!-- Alerts -->
@@ -232,21 +226,46 @@ export class Contacts {
     return container;
   }
 
-  setupFormHandlers() {
+  async setupFormHandlers() {
     const form = document.getElementById('contact-form');
+    const nameInput = document.getElementById('contact-name');
+    const emailInput = document.getElementById('contact-email');
+    const nameGroup = document.getElementById('contact-name-group');
+    const emailGroup = document.getElementById('contact-email-group');
+    const authInfo = document.getElementById('contact-auth-info');
+
+    const authState = await getAuthState();
+    if (authState?.user) {
+      nameGroup?.classList.add('d-none');
+      emailGroup?.classList.add('d-none');
+      if (authInfo) {
+        authInfo.innerHTML = `
+          <div class="alert alert-light border mb-3" role="status">
+            You are signed in as <strong>${this.escapeHtml(authState.user.email || 'authenticated user')}</strong>. Name and email will be used from your account.
+          </div>
+        `;
+      }
+    }
     
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       // Validation
       const errors = [];
+
+      const currentAuthState = await getAuthState();
+      const isLoggedIn = Boolean(currentAuthState?.user);
       
-      const name = document.getElementById('contact-name').value;
-      if (!name.trim()) {
+      const name = isLoggedIn
+        ? this.getContactNameForUser(currentAuthState.user)
+        : nameInput.value;
+      if (!isLoggedIn && !name.trim()) {
         errors.push('Please enter your full name');
       }
       
-      const email = document.getElementById('contact-email').value;
+      const email = isLoggedIn
+        ? (currentAuthState.user.email || '')
+        : emailInput.value;
       if (!email.trim() || !this.isValidEmail(email)) {
         errors.push('Please enter a valid email address');
       }
@@ -308,5 +327,32 @@ export class Contacts {
   isValidEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
+  }
+
+  getContactNameForUser(user) {
+    const metadata = user?.user_metadata || {};
+    const fullName = (metadata.full_name || metadata.name || metadata.display_name || '').trim();
+
+    if (fullName) {
+      return fullName;
+    }
+
+    const emailLocalPart = (user?.email || '').split('@')[0];
+    if (emailLocalPart) {
+      return emailLocalPart
+        .replace(/[._-]+/g, ' ')
+        .replace(/\b\w/g, (character) => character.toUpperCase());
+    }
+
+    return 'Authenticated User';
+  }
+
+  escapeHtml(value) {
+    return String(value || '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
   }
 }

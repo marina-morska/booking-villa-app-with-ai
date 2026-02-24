@@ -138,8 +138,8 @@ export class Profile {
 
     return messages.slice(0, 5).map((message) => `
       <div class="border rounded p-2 mb-2">
-        <div><strong>${message.subject}</strong></div>
-        <div class="small text-muted">${message.admin_reply ? 'Answered' : 'Awaiting reply'}</div>
+        <div><strong>I asked:</strong> ${message.message}</div>
+        <div class="small mt-1"><strong>Admin reply:</strong> ${message.admin_reply ? message.admin_reply : '<span class="text-muted">No reply yet.</span>'}</div>
       </div>
     `).join('');
   }

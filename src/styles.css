@@ -31,7 +31,7 @@ html {
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   color: var(--dark-text);
-  background: transparent;
+  background-color: #FFEDC7;
   line-height: 1.6;
 }
 
@@ -57,7 +57,7 @@ html, body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: transparent;
+  background-color: #FFEDC7;
 }
 
 .other-pages-container main {
@@ -991,23 +991,22 @@ footer {
 }
 
 /* Animations */
-@keyframes fadeIn {
+@keyframes pageEnter {
   from {
-    opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(6px);
   }
   to {
-    opacity: 1;
     transform: translateY(0);
   }
 }
 
 .page-enter {
-  animation: fadeIn 0.3s ease-in-out;
+  animation: none;
   flex: 1;
   display: flex;
   flex-direction: column;
   min-width: 100%;
+  opacity: 1;
 }
 
 .page-enter section {
@@ -1205,8 +1204,13 @@ footer {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background-color: #213140;
   background: linear-gradient(rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.22)),
     url('../images/background-book.jpg') center / cover no-repeat fixed;
+}
+
+.booking-page.page-enter {
+  animation: none;
 }
 
 /* Booking Header - Light Teal */

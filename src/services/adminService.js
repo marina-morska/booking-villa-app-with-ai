@@ -1,6 +1,11 @@
 import { supabase } from './supabaseClient.js';
 
 const GALLERY_BUCKET = 'villa-photos';
+const GALLERY_CACHE_TTL_MS = 5 * 60 * 1000;
+let galleryPhotosCache = {
+  expiresAt: 0,
+  data: []
+};
 
 export async function getAllBookings() {
   if (!supabase) {
@@ -89,12 +94,11 @@ export async function uploadPhoto(file, title = '') {
     return { error: new Error('Supabase is not configured') };
   }
 
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${crypto.randomUUID()}.${fileExt}`;
+  const fileName = sanitizeStorageFileName(file.name);
 
   const { error: uploadError } = await supabase.storage
     .from(GALLERY_BUCKET)
-    .upload(fileName, file, { upsert: false });
+    .upload(fileName, file, { upsert: true });
 
   if (uploadError) {
     return { error: uploadError };
@@ -131,4 +135,123 @@ export async function deletePhoto(photoId, storagePath) {
     .eq('id', photoId);
 
   return { error: deleteError };
+}
+
+export async function getPublicGalleryPhotos(forceRefresh = false) {
+  if (!supabase) {
+    return { data: [], error: new Error('Supabase is not configured') };
+  }
+
+  const now = Date.now();
+  if (!forceRefresh && galleryPhotosCache.expiresAt > now && galleryPhotosCache.data.length) {
+    return { data: galleryPhotosCache.data, error: null };
+  }
+
+  const { data: photosTableRows } = await supabase
+    .from('photos')
+    .select('title, storage_path')
+    .order('created_at', { ascending: false });
+
+  const titleByPath = new Map((photosTableRows ?? [])
+    .filter((row) => row?.storage_path)
+    .map((row) => [row.storage_path, row.title || '']));
+
+  const { data: storageObjects, error: storageError } = await supabase.storage
+    .from(GALLERY_BUCKET)
+    .list('', { limit: 500, offset: 0, sortBy: { column: 'name', order: 'asc' } });
+
+  if (storageError) {
+    return { data: [], error: storageError };
+  }
+
+  const photos = (storageObjects ?? [])
+    .filter((object) => object.name && !object.name.endsWith('/'))
+    .map((object) => {
+      const thumbnailUrl = buildPublicUrl(object.name, {
+        width: 900,
+        quality: 70,
+        resize: 'contain'
+      });
+      const lightboxUrl = buildPublicUrl(object.name, {
+        width: 2200,
+        quality: 82,
+        resize: 'contain'
+      });
+
+      return {
+        id: `storage-${object.id || object.name}`,
+        title: titleByPath.get(object.name) || formatTitleFromPath(object.name),
+        src: thumbnailUrl,
+        lightboxSrc: lightboxUrl,
+        storagePath: object.name
+      };
+    })
+    .filter((photo) => photo.src)
+    .sort((left, right) => compareByGalleryIndex(left.storagePath, right.storagePath));
+
+  galleryPhotosCache = {
+    data: photos,
+    expiresAt: now + GALLERY_CACHE_TTL_MS
+  };
+
+  return { data: photos, error: null };
+}
+
+function formatTitleFromPath(path = '') {
+  const name = path.split('/').pop() || path;
+  const nameWithoutExt = name.replace(/\.[^/.]+$/, '');
+  const cleaned = nameWithoutExt
+    .replace(/^[0-9]+[_-]?/, '')
+    .replace(/[._-]+/g, ' ')
+    .trim();
+
+  return cleaned
+    ? cleaned.replace(/\b\w/g, (character) => character.toUpperCase())
+    : 'Villa Photo';
+}
+
+function sanitizeStorageFileName(fileName = '') {
+  const normalized = String(fileName)
+    .normalize('NFKD')
+    .replace(/[^\w.\-]+/g, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_+|_+$/g, '');
+
+  if (!normalized) {
+    return `${Date.now()}_photo.jpg`;
+  }
+
+  return normalized;
+}
+
+function compareByGalleryIndex(leftPath = '', rightPath = '') {
+  const leftIndex = extractLeadingNumber(leftPath);
+  const rightIndex = extractLeadingNumber(rightPath);
+
+  if (leftIndex !== rightIndex) {
+    return leftIndex - rightIndex;
+  }
+
+  return String(leftPath).localeCompare(String(rightPath), undefined, {
+    numeric: true,
+    sensitivity: 'base'
+  });
+}
+
+function extractLeadingNumber(filePath = '') {
+  const fileName = String(filePath).split('/').pop() || '';
+  const match = fileName.match(/^(\d+)/);
+  if (!match) {
+    return Number.MAX_SAFE_INTEGER;
+  }
+
+  return Number(match[1]);
+}
+
+function buildPublicUrl(storagePath, transform) {
+  const { data: publicUrlData } = supabase.storage
+    .from(GALLERY_BUCKET)
+    .getPublicUrl(storagePath, { transform });
+
+  return publicUrlData?.publicUrl || '';
 }

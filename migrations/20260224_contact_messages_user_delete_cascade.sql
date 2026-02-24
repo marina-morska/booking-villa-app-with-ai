@@ -1,0 +1,9 @@
+-- Ensure user-owned messages are removed when auth user is deleted
+alter table public.contact_messages
+  drop constraint if exists contact_messages_user_id_fkey;
+
+alter table public.contact_messages
+  add constraint contact_messages_user_id_fkey
+  foreign key (user_id)
+  references auth.users(id)
+  on delete cascade;

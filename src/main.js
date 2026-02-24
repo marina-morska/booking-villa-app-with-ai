@@ -17,6 +17,7 @@ import { getAuthState, signOut } from './services/authService.js';
 class App {
   constructor() {
     this.currentPage = null;
+    this.routeRequestId = 0;
     this.routes = {
       '/': Home,
       '/home': Home,
@@ -62,8 +63,13 @@ class App {
   }
 
   async handleRoute() {
+    const requestId = ++this.routeRequestId;
     const path = window.location.pathname || '/';
     const authState = await getAuthState();
+    if (requestId !== this.routeRequestId) {
+      return;
+    }
+
     const resolvedPath = this.getRouteForAccess(path, authState);
 
     if (resolvedPath !== path) {
@@ -72,46 +78,45 @@ class App {
 
     const PageClass = this.routes[resolvedPath] || Home;
     const isHome = resolvedPath === '/' || resolvedPath === '/home';
+    const page = new PageClass();
+    const content = await page.render();
+    if (requestId !== this.routeRequestId) {
+      return;
+    }
     
     const appDiv = document.getElementById('app');
     const otherPagesDiv = document.getElementById('other-pages-container');
     
     if (isHome) {
-      // Show home page, hide other pages
-      appDiv.style.display = 'flex';
-      otherPagesDiv.style.display = 'none';
-      
       // Render home page navbar
       const homeNavbar = document.getElementById('home-navbar');
       homeNavbar.innerHTML = getNavbarHTML(authState);
       
       // Render home page content
       const homePageContent = document.getElementById('home-page-content');
-      homePageContent.innerHTML = '';
-      const page = new PageClass();
-      const content = await page.render();
-      homePageContent.appendChild(content);
+      homePageContent.replaceChildren(content);
       
       // Render home page footer
       this.renderHomeFooter();
+
+      // Show home page, hide other pages
+      appDiv.style.display = 'flex';
+      otherPagesDiv.style.display = 'none';
       
       // Update active nav link
       this.updateActiveNavLink(resolvedPath, 'home-navbar');
     } else {
-      // Show other pages, hide home page
-      appDiv.style.display = 'none';
-      otherPagesDiv.style.display = 'flex';
-      
       // Render navbar and footer for other pages
       renderNavbar(null, authState);
       renderFooter();
       
       // Render page content
       const pageContent = document.getElementById('page-content');
-      pageContent.innerHTML = '';
-      const page = new PageClass();
-      const content = await page.render();
-      pageContent.appendChild(content);
+      pageContent.replaceChildren(content);
+
+      // Show other pages, hide home page
+      appDiv.style.display = 'none';
+      otherPagesDiv.style.display = 'flex';
       
       // Update active nav link
       this.updateActiveNavLink(resolvedPath);

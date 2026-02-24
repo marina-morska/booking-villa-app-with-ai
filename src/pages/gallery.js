@@ -1,56 +1,15 @@
+import { getPublicGalleryPhotos } from '../services/adminService.js';
+
 export class Gallery {
   constructor() {
-    this.galleryImages = [
-      { id: 1, title: 'Villa 1', src: '../images/1_villa_1.jpg', category: 'exterior' },
-      { id: 2, title: 'Villa 2', src: '../images/2_villa_2.jpg', category: 'exterior' },
-      { id: 3, title: 'Villa 3', src: '../images/3_villa_3.jpg', category: 'exterior' },
-      { id: 4, title: 'Villa 4', src: '../images/4_villa_4.jpg', category: 'exterior' },
-      { id: 5, title: 'Villa 5', src: '../images/5_villa_5.jpg', category: 'exterior' },
-      { id: 6, title: 'Exterior 5', src: '../images/6_exterior_5.jpg', category: 'exterior' },
-      { id: 7, title: 'Exterior 6', src: '../images/7_exterior_6.jpg', category: 'exterior' },
-      { id: 8, title: 'Exterior 1', src: '../images/8_exterior_1.jpg', category: 'exterior' },
-      { id: 9, title: 'Exterior 2', src: '../images/9_exterior_2.jpg', category: 'exterior' },
-      { id: 10, title: 'Exterior 7', src: '../images/10_exterior_7.jpg', category: 'exterior' },
-      { id: 11, title: 'Exterior 3', src: '../images/11_exterior_3.jpg', category: 'exterior' },
-      { id: 12, title: 'Room 1', src: '../images/12_room_1.jpg', category: 'bedroom' },
-      { id: 13, title: 'Room 2', src: '../images/13_room_2.jpg', category: 'bedroom' },
-      { id: 14, title: 'Room 3', src: '../images/14_room_3.jpg', category: 'bedroom' },
-      { id: 15, title: 'Kitchen', src: '../images/15_kitchen.jpg', category: 'interior' },
-      { id: 16, title: 'Living Room 1', src: '../images/16_living_room_1.jpg', category: 'interior' },
-      { id: 17, title: 'Living Room 2', src: '../images/17_living_room_2.jpg', category: 'interior' },
-      { id: 18, title: 'Staircase', src: '../images/18_staircase.jpg', category: 'interior' },
-      { id: 19, title: 'Bathroom 1', src: '../images/19_bathroom_1.jpg', category: 'interior' },
-      { id: 20, title: 'Bathroom 2', src: '../images/20_bathroom_2.jpg', category: 'interior' },
-      { id: 21, title: 'Bathroom 3', src: '../images/21_bathroom_3.jpg', category: 'interior' },
-      { id: 22, title: 'Pool 1', src: '../images/22_pool_1.jpg', category: 'amenities' },
-      { id: 23, title: 'Pool 3', src: '../images/23_pool_3.jpg', category: 'amenities' },
-      { id: 24, title: 'Pool 4', src: '../images/24_pool_4.jpg', category: 'amenities' },
-      { id: 25, title: 'Pool 5', src: '../images/25_pool_5.jpg', category: 'amenities' },
-      { id: 26, title: 'Pool 6', src: '../images/26_pool_6.jpg', category: 'amenities' },
-      { id: 27, title: 'Pool 7', src: '../images/27_pool_7.jpg', category: 'amenities' },
-      { id: 28, title: 'Pool 8', src: '../images/28_pool_8.jpg', category: 'amenities' },
-      { id: 29, title: 'Pool Bar 1', src: '../images/29_pool_bar_1.jpg', category: 'amenities' },
-      { id: 30, title: 'Pool Bar 2', src: '../images/30_pool_bar_2.jpg', category: 'amenities' },
-      { id: 31, title: 'Pool Bar 4', src: '../images/31_pool_bar_4.jpg', category: 'amenities' },
-      { id: 32, title: 'Terrace', src: '../images/32_terrace.jpg', category: 'exterior' }
-    ];
+    this.galleryImages = [];
     this.currentImageIndex = 0;
+    this.keyboardListenerAttached = false;
   }
 
   async render() {
     const container = document.createElement('div');
     container.className = 'page-enter';
-
-    const galleryGrid = this.galleryImages.map(img => `
-      <div class="gallery-item" data-category="${img.category}" data-src="${img.src}" data-title="${img.title}">
-        <img src="${img.src}" alt="${img.title}" />
-        <div class="gallery-overlay">
-          <div class="gallery-overlay-icon">
-            <i class="bi bi-zoom-in"></i>
-          </div>
-        </div>
-      </div>
-    `).join('');
     
     container.innerHTML = `
       <!-- Hero Section -->
@@ -65,7 +24,10 @@ export class Gallery {
       <section style="background-color: #FFEDC7; padding: 2rem;">
         <div class="container">
           <div class="gallery-grid" id="gallery-grid">
-          ${galleryGrid}
+          <div class="d-flex align-items-center justify-content-center py-5">
+            <div class="spinner-border text-primary me-2" role="status" aria-hidden="true"></div>
+            <span>Loading gallery...</span>
+          </div>
         </div>
         </div>
       </section>
@@ -80,9 +42,7 @@ export class Gallery {
         <button class="lightbox-nav lightbox-next" id="lightbox-next">
           <i class="bi bi-chevron-right"></i>
         </button>
-        <div class="lightbox-counter">
-          <span id="lightbox-current">1</span> / <span id="lightbox-total">${this.galleryImages.length}</span>
-        </div>
+        <div class="lightbox-counter"><span id="lightbox-current">1</span> / <span id="lightbox-total">0</span></div>
       </div>
 
       <!-- Gallery Description -->
@@ -142,10 +102,10 @@ export class Gallery {
       </section>
     `;
     
-    // Set up filter functionality after rendering
+    // Set up page interactions after first render
     setTimeout(() => {
       this.setupFilters();
-      this.setupLightboxCarousel();
+      this.loadGalleryContent();
     }, 0);
     
     return container;
@@ -159,12 +119,67 @@ export class Gallery {
     this.setupLightboxNav();
   }
 
+  async loadGalleryContent() {
+    const galleryGridElement = document.getElementById('gallery-grid');
+    const totalElement = document.getElementById('lightbox-total');
+
+    if (!galleryGridElement) {
+      return;
+    }
+
+    const { data: photos, error } = await getPublicGalleryPhotos();
+    this.galleryImages = photos ?? [];
+
+    const galleryContent = error
+      ? '<div class="alert alert-warning mb-0">Gallery could not load from Supabase Storage. Please check your bucket and policies.</div>'
+      : this.renderGalleryGrid();
+
+    galleryGridElement.innerHTML = galleryContent;
+    if (totalElement) {
+      totalElement.textContent = String(this.galleryImages.length);
+    }
+
+    this.setupLightboxCarousel();
+  }
+
+  renderGalleryGrid() {
+    if (!this.galleryImages.length) {
+      return '<div class="alert alert-light border mb-0">No photos found in Supabase Storage bucket.</div>';
+    }
+
+    return this.galleryImages.map((img, index) => `
+      <div class="gallery-item" data-src="${img.src}" data-full-src="${img.lightboxSrc || img.src}" data-title="${this.escapeHtml(img.title)}">
+        <img
+          src="${img.src}"
+          alt="${this.escapeHtml(img.title)}"
+          loading="lazy"
+          decoding="async"
+          fetchpriority="${index < 3 ? 'high' : 'low'}"
+        />
+        <div class="gallery-overlay">
+          <div class="gallery-overlay-icon">
+            <i class="bi bi-zoom-in"></i>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
   setupLightboxNav() {
     const lightbox = document.getElementById('lightbox');
     const lightboxPrev = document.getElementById('lightbox-prev');
     const lightboxNext = document.getElementById('lightbox-next');
     const lightboxClose = document.querySelector('.lightbox-close');
     const galleryItems = document.querySelectorAll('.gallery-item');
+
+    if (!galleryItems.length) {
+      lightboxPrev.style.display = 'none';
+      lightboxNext.style.display = 'none';
+      return;
+    }
+
+    lightboxPrev.style.display = '';
+    lightboxNext.style.display = '';
     
     // Open lightbox when clicking gallery items
     galleryItems.forEach((item, index) => {
@@ -195,19 +210,22 @@ export class Gallery {
     });
     
     // Keyboard navigation
-    document.addEventListener('keydown', (e) => {
-      if (lightbox.style.display === 'flex') {
-        if (e.key === 'ArrowLeft') {
-          this.currentImageIndex = (this.currentImageIndex - 1 + this.galleryImages.length) % this.galleryImages.length;
-          this.updateLightboxImage();
-        } else if (e.key === 'ArrowRight') {
-          this.currentImageIndex = (this.currentImageIndex + 1) % this.galleryImages.length;
-          this.updateLightboxImage();
-        } else if (e.key === 'Escape') {
-          lightbox.style.display = 'none';
+    if (!this.keyboardListenerAttached) {
+      document.addEventListener('keydown', (e) => {
+        if (lightbox.style.display === 'flex') {
+          if (e.key === 'ArrowLeft') {
+            this.currentImageIndex = (this.currentImageIndex - 1 + this.galleryImages.length) % this.galleryImages.length;
+            this.updateLightboxImage();
+          } else if (e.key === 'ArrowRight') {
+            this.currentImageIndex = (this.currentImageIndex + 1) % this.galleryImages.length;
+            this.updateLightboxImage();
+          } else if (e.key === 'Escape') {
+            lightbox.style.display = 'none';
+          }
         }
-      }
-    });
+      });
+      this.keyboardListenerAttached = true;
+    }
   }
 
   openLightbox() {
@@ -218,11 +236,24 @@ export class Gallery {
 
   updateLightboxImage() {
     const image = this.galleryImages[this.currentImageIndex];
+    if (!image) {
+      return;
+    }
+
     const lightboxImage = document.querySelector('.lightbox-image');
     const currentImageSpan = document.getElementById('lightbox-current');
     
-    lightboxImage.src = image.src;
+    lightboxImage.src = image.lightboxSrc || image.src;
     lightboxImage.alt = image.title;
     currentImageSpan.textContent = this.currentImageIndex + 1;
+  }
+
+  escapeHtml(value) {
+    return String(value || '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
   }
 }
