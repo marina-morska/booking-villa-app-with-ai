@@ -889,6 +889,19 @@ footer {
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
+/* Admin Panel */
+.admin-stat-card {
+  border-left: 4px solid #3F9AAE;
+}
+
+.admin-table th {
+  white-space: nowrap;
+}
+
+.admin-table td {
+  vertical-align: middle;
+}
+
 /* Responsive Design */
 @media (max-width: 992px) {
   #app .hero h1 {

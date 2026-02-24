@@ -43,15 +43,34 @@ export async function getAllMessages() {
     .order('created_at', { ascending: false });
 }
 
-export async function replyToMessage(messageId, adminReply) {
+export async function replyToMessage(messageId, adminReply, recipient = null) {
   if (!supabase) {
     return { error: new Error('Supabase is not configured') };
   }
 
-  return supabase
+  const { error } = await supabase
     .from('contact_messages')
     .update({ admin_reply: adminReply, replied_at: new Date().toISOString(), updated_at: new Date().toISOString() })
     .eq('id', messageId);
+
+  if (error) {
+    return { error };
+  }
+
+  if (!recipient?.email) {
+    return { error: null, emailError: null };
+  }
+
+  const { error: functionError } = await supabase.functions.invoke('send-admin-reply-email', {
+    body: {
+      toEmail: recipient.email,
+      guestName: recipient.fullName || 'Guest',
+      subject: recipient.subject || 'Your message to Villa Paradise',
+      adminReply
+    }
+  });
+
+  return { error: null, emailError: functionError ?? null };
 }
 
 export async function getAllPhotos() {

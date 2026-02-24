@@ -58,19 +58,33 @@ A modern, responsive multipage villa booking application built with vanilla Java
    VITE_SUPABASE_ANON_KEY=...
    ```
 
-4. **Start the development server**
+4. **Configure Supabase Edge Function secrets (for admin reply emails)**
+   In Supabase project settings, add:
+   ```bash
+   RESEND_API_KEY=...
+   ADMIN_REPLY_FROM_EMAIL=Villa Paradise <noreply@your-domain.com>
+   ```
+
+   If you do not have a domain yet, you can still test with:
+   ```bash
+   ADMIN_REPLY_FROM_EMAIL=Villa Paradise <onboarding@resend.dev>
+   ADMIN_REPLY_TEST_TO_EMAIL=your-verified-email@example.com
+   ```
+   `ADMIN_REPLY_TEST_TO_EMAIL` forces all reply emails to your test inbox.
+
+5. **Start the development server**
    ```bash
    npm run dev
    ```
    The app will open automatically in your browser at `http://localhost:5173`
 
-5. **Build for production**
+6. **Build for production**
    ```bash
    npm run build
    ```
    Build files will be generated in the `dist` folder.
 
-6. **Preview the production build**
+7. **Preview the production build**
    ```bash
    npm run preview
    ```

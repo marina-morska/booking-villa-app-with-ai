@@ -14,9 +14,6 @@ export class Reviews {
     const auth = await getAuthState();
     const reviews = await getPublicReviews();
 
-    console.log('Reviews page - Auth:', auth);
-    console.log('Reviews page - Reviews data:', reviews);
-
     container.innerHTML = `
       <section class="hero" style="background-color: #FFEDC7;">
         <div class="hero-content">
@@ -91,7 +88,7 @@ export class Reviews {
         `
         : '';
 
-      const name = review.profiles?.display_name || 'User';
+      const name = review.display_name || 'User';
       return `
         <div class="col-md-6 col-lg-4 mb-4">
           <div class="review-bubble h-100">

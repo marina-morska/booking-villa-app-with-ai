@@ -3,68 +3,18 @@ import { getAuthState } from './authService.js';
 
 export async function getPublicReviews() {
   if (!supabase) {
-    console.warn('Supabase not initialized');
     return [];
   }
 
-  try {
-    // Fetch all reviews with all columns
-    const { data: reviews, error } = await supabase
-      .from('reviews')
-      .select('*')
-      .order('created_at', { ascending: false });
+  const { data, error } = await supabase.rpc('get_public_reviews', {
+    limit_count: 200
+  });
 
-    if (error) {
-      console.error('Error fetching reviews:', error);
-      return [];
-    }
-
-    console.log('Fetched reviews:', reviews);
-
-    // Then fetch profiles separately
-    if (reviews && reviews.length > 0) {
-      const userIds = [...new Set(reviews.map(r => r.user_id))];
-      console.log('Fetching profiles for user IDs:', userIds);
-
-      const { data: profiles, error: profileError } = await supabase
-        .from('profiles')
-        .select('id, display_name')
-        .in('id', userIds);
-
-      if (profileError) {
-        console.error('Error fetching profiles:', profileError);
-      }
-
-      const profileMap = {};
-      if (profiles) {
-        profiles.forEach(p => {
-          profileMap[p.id] = p;
-        });
-      }
-
-      console.log('Profile map:', profileMap);
-      console.log('Profile map entries:', Object.entries(profileMap));
-
-      // Merge profiles into reviews
-      const merged = reviews.map(review => {
-        const profile = profileMap[review.user_id];
-        console.log(`Review ${review.id} - user_id: ${review.user_id}, profile found:`, profile);
-        
-        return {
-          ...review,
-          profiles: profile || null
-        };
-      });
-
-      console.log('Final merged reviews:', merged);
-      return merged;
-    }
-
-    return [];
-  } catch (err) {
-    console.error('Exception in getPublicReviews:', err);
+  if (error) {
     return [];
   }
+
+  return data ?? [];
 }
 
 export async function createReview({ title, content, rating }) {

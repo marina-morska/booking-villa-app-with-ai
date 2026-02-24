@@ -23,9 +23,9 @@ export class Profile {
     }
 
     const [bookings, reviews, messages] = await Promise.all([
-      getMyBookings(),
-      getMyReviews(),
-      getMyMessages()
+      getMyBookings(auth.user.id),
+      getMyReviews(auth.user.id),
+      getMyMessages(auth.user.id)
     ]);
 
     container.innerHTML = `
