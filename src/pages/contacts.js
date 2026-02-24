@@ -3,9 +3,9 @@ import { createContactMessage } from '../services/contactService.js';
 export class Contacts {
   constructor() {
     this.contactInfo = {
-      phone: '+1 (555) 123-4567',
+      phone: '+359 89 353 1551',
       email: 'info@villaparadise.com',
-      address: 'Paradise Beach, Tropical Island',
+      address: 'в.с.Узунджата, Uzundzhaka, 8180 Приморско',
       hours: {
         weekday: '9:00 AM - 8:00 PM',
         weekend: '9:00 AM - 9:00 PM'
@@ -100,17 +100,57 @@ export class Contacts {
       <!-- Map Section -->
       <section style="background-color: #FFEDC7; padding: 3rem 0;">
         <div class="container">
-          <h2 class="text-center mb-4">Our Location</h2>
-          <div class="contact-map" id="map-container">
-            <iframe 
-              width="100%" 
-              height="400" 
-              style="border: none; border-radius: 12px;"
-              src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d2952.1380219975476!2d27.734583999999998!3d42.275577!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDLCsDE2JzMyLjEiTiAyN8KwNDQnMDQuNSJF!5e0!3m2!1sen!2sbg!4v1771769612015!5m2!1sen!2sbg"
-              allowfullscreen="" 
-              loading="lazy" 
-              referrerpolicy="no-referrer-when-downgrade">
-            </iframe>
+          <h2 class="text-center mb-5">Our Location</h2>
+          <div class="row align-items-center">
+            <!-- Address Info Left -->
+            <div class="col-lg-5">
+              <div class="address-info">
+                <div class="mb-4">
+                  <h4 class="mb-3" style="color: #3F9AAE;">Address</h4>
+                  <p class="mb-3">
+                    <i class="bi bi-geo-alt text-primary me-2"></i>
+                    <strong>${this.contactInfo.address}</strong>
+                  </p>
+                </div>
+                
+                <div class="mb-4">
+                  <h4 class="mb-3" style="color: #3F9AAE;">Contact Info</h4>
+                  <p class="mb-2">
+                    <i class="bi bi-telephone text-primary me-2"></i>
+                    <a href="tel:${this.contactInfo.phone}" style="text-decoration: none; color: inherit;">${this.contactInfo.phone}</a>
+                  </p>
+                  <p class="mb-2">
+                    <i class="bi bi-envelope text-primary me-2"></i>
+                    <a href="mailto:${this.contactInfo.email}" style="text-decoration: none; color: inherit;">${this.contactInfo.email}</a>
+                  </p>
+                </div>
+                
+                <div>
+                  <h4 class="mb-3" style="color: #3F9AAE;">Hours</h4>
+                  <p class="mb-2">
+                    <strong>Weekdays:</strong> ${this.contactInfo.hours.weekday}
+                  </p>
+                  <p>
+                    <strong>Weekends:</strong> ${this.contactInfo.hours.weekend}
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Map Right -->
+            <div class="col-lg-7">
+              <div class="contact-map" id="map-container">
+                <iframe 
+                  width="100%" 
+                  height="100%" 
+                  style="border: none; border-radius: 12px;"
+                  src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d2952.1380219975476!2d27.734583999999998!3d42.275577!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDLCsDE2JzMyLjEiTiAyN8KwNDQnMDQuNSJF!5e0!3m2!1sen!2sbg!4v1771769612015!5m2!1sen!2sbg"
+                  allowfullscreen="" 
+                  loading="lazy" 
+                  referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+              </div>
+            </div>
           </div>
         </div>
       </section>

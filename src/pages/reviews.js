@@ -1,5 +1,5 @@
 import { getAuthState } from '../services/authService.js';
-import { createReview, deleteReview, getPublicReviews, updateReview } from '../services/reviewService.js';
+import { deleteReview, getPublicReviews, updateReview } from '../services/reviewService.js';
 
 export class Reviews {
   constructor() {
@@ -9,67 +9,71 @@ export class Reviews {
   async render() {
     const container = document.createElement('div');
     container.className = 'page-enter';
+    container.style.backgroundColor = '#FFEDC7';
 
     const auth = await getAuthState();
     const reviews = await getPublicReviews();
 
+    console.log('Reviews page - Auth:', auth);
+    console.log('Reviews page - Reviews data:', reviews);
+
     container.innerHTML = `
-      <section class="hero">
+      <section class="hero" style="background-color: #FFEDC7;">
         <div class="hero-content">
           <h1>Guest Reviews</h1>
           <p>Real feedback from guests</p>
         </div>
       </section>
 
-      <section class="container my-5">
-        ${auth.user ? this.getReviewFormHTML() : '<div class="alert alert-info">Login to write and manage your reviews.</div>'}
-      </section>
+      ${auth.user ? `
+        <div id="edit-review-section" style="display: none; background-color: #FFEDC7;">
+          <section class="container my-4">
+            <div class="card border-0 shadow-sm">
+              <div class="card-body">
+                <h4 class="mb-3">Edit Review</h4>
+                <div id="review-alerts"></div>
+                <form id="edit-review-form">
+                  <div class="mb-3">
+                    <label for="edit-review-title" class="form-label">Title</label>
+                    <input id="edit-review-title" class="form-control" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="edit-review-rating" class="form-label">Rating</label>
+                    <select id="edit-review-rating" class="form-select" required>
+                      <option value="5">5 Stars</option>
+                      <option value="4">4 Stars</option>
+                      <option value="3">3 Stars</option>
+                      <option value="2">2 Stars</option>
+                      <option value="1">1 Star</option>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="edit-review-content" class="form-label">Review</label>
+                    <textarea id="edit-review-content" class="form-control" rows="4" required></textarea>
+                  </div>
+                  <button class="btn btn-primary" type="submit" id="edit-review-submit-btn">Update Review</button>
+                  <button class="btn btn-outline-secondary ms-2" type="button" id="edit-review-cancel-btn">Cancel</button>
+                </form>
+              </div>
+            </div>
+          </section>
+        </div>
+      ` : ''}
 
-      <section class="container my-4">
-        <div id="review-alerts"></div>
-        <div class="row">
-          ${this.renderReviewCards(reviews, auth)}
+      <section class="container-fluid my-0" style="background-color: #FFEDC7; padding: 2rem;">
+        <div class="container">
+          <div class="row">
+            ${this.renderReviewCards(reviews, auth)}
+          </div>
         </div>
       </section>
     `;
 
     if (auth.user) {
-      setTimeout(() => this.setupHandlers(auth), 0);
+      setTimeout(() => this.setupHandlers(auth, reviews), 0);
     }
 
     return container;
-  }
-
-  getReviewFormHTML() {
-    return `
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <h4 class="mb-3">Write a Review</h4>
-          <form id="review-form">
-            <div class="mb-3">
-              <label for="review-title" class="form-label">Title</label>
-              <input id="review-title" class="form-control" required>
-            </div>
-            <div class="mb-3">
-              <label for="review-rating" class="form-label">Rating</label>
-              <select id="review-rating" class="form-select" required>
-                <option value="5">5 Stars</option>
-                <option value="4">4 Stars</option>
-                <option value="3">3 Stars</option>
-                <option value="2">2 Stars</option>
-                <option value="1">1 Star</option>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="review-content" class="form-label">Review</label>
-              <textarea id="review-content" class="form-control" rows="4" required></textarea>
-            </div>
-            <button class="btn btn-primary" type="submit" id="review-submit-btn">Submit Review</button>
-            <button class="btn btn-outline-secondary ms-2 d-none" type="button" id="review-cancel-btn">Cancel Edit</button>
-          </form>
-        </div>
-      </div>
-    `;
   }
 
   renderReviewCards(reviews, auth) {
@@ -87,7 +91,7 @@ export class Reviews {
         `
         : '';
 
-      const name = review.profiles?.display_name || 'Guest';
+      const name = review.profiles?.display_name || 'User';
       return `
         <div class="col-md-6 col-lg-4 mb-4">
           <div class="review-bubble h-100">
@@ -107,50 +111,16 @@ export class Reviews {
     }).join('');
   }
 
-  setupHandlers(auth) {
-    const form = document.getElementById('review-form');
+  setupHandlers(auth, reviews) {
     const alerts = document.getElementById('review-alerts');
-    const cancelBtn = document.getElementById('review-cancel-btn');
+    const form = document.getElementById('edit-review-form');
+    const section = document.getElementById('edit-review-section');
+    const cancelBtn = document.getElementById('edit-review-cancel-btn');
 
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      alerts.innerHTML = '';
-
-      const payload = {
-        title: document.getElementById('review-title').value.trim(),
-        content: document.getElementById('review-content').value.trim(),
-        rating: Number(document.getElementById('review-rating').value)
-      };
-
-      if (this.editingReviewId) {
-        const { error } = await updateReview(this.editingReviewId, payload);
-        if (error) {
-          alerts.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
-          return;
-        }
-        this.editingReviewId = null;
-      } else {
-        const { error } = await createReview(payload);
-        if (error) {
-          alerts.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
-          return;
-        }
-      }
-
-      window.dispatchEvent(new PopStateEvent('popstate'));
-    });
-
-    cancelBtn.addEventListener('click', () => {
-      this.editingReviewId = null;
-      form.reset();
-      cancelBtn.classList.add('d-none');
-      document.getElementById('review-submit-btn').textContent = 'Submit Review';
-    });
-
+    // Edit button handlers
     document.querySelectorAll('[data-review-action="edit"]').forEach((button) => {
-      button.addEventListener('click', async () => {
+      button.addEventListener('click', () => {
         const reviewId = button.getAttribute('data-review-id');
-        const reviews = await getPublicReviews();
         const review = reviews.find((item) => item.id === reviewId && item.user_id === auth.user.id);
 
         if (!review) {
@@ -158,14 +128,59 @@ export class Reviews {
         }
 
         this.editingReviewId = review.id;
-        document.getElementById('review-title').value = review.title;
-        document.getElementById('review-content').value = review.content;
-        document.getElementById('review-rating').value = String(review.rating);
-        cancelBtn.classList.remove('d-none');
-        document.getElementById('review-submit-btn').textContent = 'Update Review';
+        document.getElementById('edit-review-title').value = review.title;
+        document.getElementById('edit-review-content').value = review.content;
+        document.getElementById('edit-review-rating').value = String(review.rating);
+        document.getElementById('edit-review-submit-btn').textContent = 'Update Review';
+        section.style.display = 'block';
+        alerts.innerHTML = '';
+
+        // Scroll to form
+        section.scrollIntoView({ behavior: 'smooth' });
       });
     });
 
+    // Cancel edit
+    cancelBtn.addEventListener('click', () => {
+      this.editingReviewId = null;
+      form.reset();
+      section.style.display = 'none';
+      alerts.innerHTML = '';
+    });
+
+    // Form submission
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      alerts.innerHTML = '';
+
+      if (!this.editingReviewId) {
+        return;
+      }
+
+      const payload = {
+        title: document.getElementById('edit-review-title').value.trim(),
+        content: document.getElementById('edit-review-content').value.trim(),
+        rating: Number(document.getElementById('edit-review-rating').value)
+      };
+
+      const { error } = await updateReview(this.editingReviewId, payload);
+      if (error) {
+        alerts.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+        return;
+      }
+
+      section.style.display = 'none';
+      this.editingReviewId = null;
+      form.reset();
+      alerts.innerHTML = '<div class="alert alert-success">Review updated successfully!</div>';
+
+      // Reload reviews
+      setTimeout(() => {
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }, 1500);
+    });
+
+    // Delete button handlers
     document.querySelectorAll('[data-review-action="delete"]').forEach((button) => {
       button.addEventListener('click', async () => {
         const reviewId = button.getAttribute('data-review-id');

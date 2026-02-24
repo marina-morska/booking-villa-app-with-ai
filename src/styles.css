@@ -60,6 +60,13 @@ html, body {
   background: transparent;
 }
 
+.other-pages-container main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 100%;
+}
+
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
   color: var(--primary-color);
@@ -544,12 +551,13 @@ a:hover {
 
 /* Gallery Pages Hero Section */
 .hero {
-  padding: 32px 2rem 0;
+  padding: 2rem;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: auto;
+  margin: 0;
 }
 
 .hero-content {
@@ -626,12 +634,13 @@ a:hover {
 
 /* Gallery Pages Hero Section */
 .hero {
-  padding: 32px 2rem 0;
+  padding: 2rem;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: auto;
+  margin: 0;
 }
 
 .hero-content {
@@ -759,7 +768,7 @@ a:hover {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: var(--shadow-md);
-  height: 400px;
+  height: 300px;
   margin-bottom: 2rem;
 }
 
@@ -803,7 +812,7 @@ footer {
   background: #3F9AAE !important;
   color: #ffffff;
   padding: 0 2rem;
-  margin-top: auto;
+  margin-top: 0;
 }
 
 #footer .footer-content {
@@ -927,7 +936,7 @@ footer {
   }
 
   .contact-map {
-    height: 300px;
+    height: 260px;
   }
 }
 
@@ -985,6 +994,16 @@ footer {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 100%;
+}
+
+.page-enter section {
+  flex-shrink: 0;
+}
+
+.page-enter section:last-of-type {
+  margin-bottom: 0;
+  padding-bottom: 2rem;
 }
 
 /* Alert Messages */
