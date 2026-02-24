@@ -2,12 +2,17 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './styles.css';
 import * as bootstrap from 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import { renderNavbar, renderFooter } from './components/layout.js';
+import { getNavbarHTML, renderNavbar, renderFooter } from './components/layout.js';
 import { Home } from './pages/home.js';
 import { Booking } from './pages/booking.js';
 import { Gallery } from './pages/gallery.js';
 import { Reviews } from './pages/reviews.js';
 import { Contacts } from './pages/contacts.js';
+import { Login } from './pages/login.js';
+import { Register } from './pages/register.js';
+import { Profile } from './pages/profile.js';
+import { Admin } from './pages/admin.js';
+import { getAuthState, signOut } from './services/authService.js';
 
 class App {
   constructor() {
@@ -18,7 +23,11 @@ class App {
       '/booking': Booking,
       '/gallery': Gallery,
       '/reviews': Reviews,
-      '/contacts': Contacts
+      '/contacts': Contacts,
+      '/login': Login,
+      '/register': Register,
+      '/profile': Profile,
+      '/admin': Admin
     };
   }
 
@@ -28,6 +37,13 @@ class App {
     
     // Handle navigation links
     document.addEventListener('click', (e) => {
+      const logoutLink = e.target.closest('[data-auth-action="logout"]');
+      if (logoutLink) {
+        e.preventDefault();
+        this.handleLogout();
+        return;
+      }
+
       const link = e.target.closest('a[data-link]');
       if (link) {
         e.preventDefault();
@@ -47,8 +63,15 @@ class App {
 
   async handleRoute() {
     const path = window.location.pathname || '/';
-    const PageClass = this.routes[path] || Home;
-    const isHome = path === '/' || path === '/home';
+    const authState = await getAuthState();
+    const resolvedPath = this.getRouteForAccess(path, authState);
+
+    if (resolvedPath !== path) {
+      window.history.replaceState(null, '', resolvedPath);
+    }
+
+    const PageClass = this.routes[resolvedPath] || Home;
+    const isHome = resolvedPath === '/' || resolvedPath === '/home';
     
     const appDiv = document.getElementById('app');
     const otherPagesDiv = document.getElementById('other-pages-container');
@@ -60,7 +83,7 @@ class App {
       
       // Render home page navbar
       const homeNavbar = document.getElementById('home-navbar');
-      homeNavbar.innerHTML = this.getNavbarHTML();
+      homeNavbar.innerHTML = getNavbarHTML(authState);
       
       // Render home page content
       const homePageContent = document.getElementById('home-page-content');
@@ -73,14 +96,14 @@ class App {
       this.renderHomeFooter();
       
       // Update active nav link
-      this.updateActiveNavLink(path, 'home-navbar');
+      this.updateActiveNavLink(resolvedPath, 'home-navbar');
     } else {
       // Show other pages, hide home page
       appDiv.style.display = 'none';
       otherPagesDiv.style.display = 'flex';
       
       // Render navbar and footer for other pages
-      renderNavbar();
+      renderNavbar(null, authState);
       renderFooter();
       
       // Render page content
@@ -91,55 +114,35 @@ class App {
       pageContent.appendChild(content);
       
       // Update active nav link
-      this.updateActiveNavLink(path);
+      this.updateActiveNavLink(resolvedPath);
     }
     
     // Scroll to top
     window.scrollTo(0, 0);
   }
 
-  getNavbarHTML() {
-    return `
-      <div class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-          <a class="navbar-brand" href="/" data-link>
-            Villa Paradise
-          </a>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-              <li class="nav-item">
-                <a class="nav-link active" href="/" data-link>
-                  Home
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/booking" data-link>
-                  Booking
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/gallery" data-link>
-                  Gallery
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/reviews" data-link>
-                  Reviews
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="/contacts" data-link>
-                  Contacts
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    `;
+  getRouteForAccess(path, authState) {
+    const protectedRoutes = new Set(['/profile', '/admin']);
+    const guestOnlyRoutes = new Set(['/login', '/register']);
+
+    if (protectedRoutes.has(path) && !authState.user) {
+      return '/login';
+    }
+
+    if (path === '/admin' && authState.role !== 'admin') {
+      return '/profile';
+    }
+
+    if (guestOnlyRoutes.has(path) && authState.user) {
+      return '/profile';
+    }
+
+    return path;
+  }
+
+  async handleLogout() {
+    await signOut();
+    this.navigateTo('/home');
   }
 
   renderHomeFooter() {

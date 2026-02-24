@@ -1,169 +1,182 @@
+import { getAuthState } from '../services/authService.js';
+import { createReview, deleteReview, getPublicReviews, updateReview } from '../services/reviewService.js';
+
 export class Reviews {
   constructor() {
-    this.reviews = [
-      {
-        initials: 'JD',
-        name: 'John Doe',
-        date: '2 weeks ago',
-        rating: 5,
-        text: 'Absolutely incredible! The villa exceeded all expectations. The beach access was pristine, and the service was impeccable. We\'ll definitely be back!'
-      },
-      {
-        initials: 'SM',
-        name: 'Sarah Miller',
-        date: '1 month ago',
-        rating: 5,
-        text: 'Perfect place for a family getaway. Kids loved the beach, and the accommodation was comfortable and well-maintained. Highly recommended!'
-      },
-      {
-        initials: 'MP',
-        name: 'Michael Parker',
-        date: '6 weeks ago',
-        rating: 5,
-        text: 'Outstanding experience! The amenities are top-notch, and the location is unbeatable. The team took great care of us. Worth every penny!'
-      },
-      {
-        initials: 'EC',
-        name: 'Emily Chen',
-        date: '2 months ago',
-        rating: 5,
-        text: 'Amazing villa with breathtaking views. The attention to detail is impressive. Every aspect of our stay was perfect. Highly recommend!'
-      },
-      {
-        initials: 'DB',
-        name: 'David Brown',
-        date: '3 months ago',
-        rating: 5,
-        text: 'Luxury at its finest! The villa offers everything you could want for a dream vacation. The staff was attentive and professional. Absolutely worth it!'
-      },
-      {
-        initials: 'LW',
-        name: 'Lisa Wilson',
-        date: '3 months ago',
-        rating: 5,
-        text: 'We had an unforgettable experience here. The sunset views from the terrace are stunning. Everything was clean and well-organized. 10/10!'
-      },
-      {
-        initials: 'JT',
-        name: 'James Taylor',
-        date: '4 months ago',
-        rating: 5,
-        text: 'Best vacation we\'ve had in years! The villa is stunning, and the location is perfect. We can\'t wait to come back next year!'
-      },
-      {
-        initials: 'RA',
-        name: 'Rachel Anderson',
-        date: '4 months ago',
-        rating: 5,
-        text: 'Incredible property with exceptional service. The amenities are world-class. Worth every penny. Highly recommend for special occasions!'
-      }
-    ];
+    this.editingReviewId = null;
   }
 
   async render() {
     const container = document.createElement('div');
     container.className = 'page-enter';
-    
-    const reviewsBubbles = this.reviews.map(review => `
-      <div class="col-md-6 col-lg-4 mb-4">
-        <div class="review-bubble">
-          <div class="review-header">
-            <div class="reviewer-info">
-              <div class="reviewer-avatar">${review.initials}</div>
-              <div>
-                <div class="reviewer-name">${review.name}</div>
-                <div class="reviewer-date">${review.date}</div>
-              </div>
-            </div>
-            <div class="reviewer-rating">
-              ${Array(review.rating).fill('<i class="bi bi-star-fill"></i>').join('')}
-            </div>
-          </div>
-          <p class="review-text">"${review.text}"</p>
-        </div>
-      </div>
-    `).join('');
-    
+
+    const auth = await getAuthState();
+    const reviews = await getPublicReviews();
+
     container.innerHTML = `
-      <!-- Hero Section -->
       <section class="hero">
         <div class="hero-content">
           <h1>Guest Reviews</h1>
-          <p>What our guests are saying about Villa Paradise</p>
+          <p>Real feedback from guests</p>
         </div>
       </section>
 
-      <!-- Reviews Grid -->
       <section class="container my-5">
-        <h2 class="text-center mb-5">5-Star Experiences</h2>
+        ${auth.user ? this.getReviewFormHTML() : '<div class="alert alert-info">Login to write and manage your reviews.</div>'}
+      </section>
+
+      <section class="container my-4">
+        <div id="review-alerts"></div>
         <div class="row">
-          ${reviewsBubbles}
-        </div>
-      </section>
-
-      <!-- Rating Summary -->
-      <section class="bg-light py-5">
-        <div class="container">
-          <div class="row align-items-center">
-            <div class="col-lg-6 mb-4 mb-lg-0">
-              <h2>Why Guests Love Us</h2>
-              <p class="lead">Villa Paradise consistently receives 5-star ratings from our guests. Here's what makes us special:</p>
-              <ul class="list-unstyled">
-                <li class="mb-3">
-                  <i class="bi bi-check-circle text-success me-2 fs-5"></i>
-                  <strong>Stunning Location:</strong> Pristine beachfront with breathtaking ocean views
-                </li>
-                <li class="mb-3">
-                  <i class="bi bi-check-circle text-success me-2 fs-5"></i>
-                  <strong>Luxury Amenities:</strong> World-class facilities and modern comforts
-                </li>
-                <li class="mb-3">
-                  <i class="bi bi-check-circle text-success me-2 fs-5"></i>
-                  <strong>Exceptional Service:</strong> Professional and attentive staff available 24/7
-                </li>
-                <li class="mb-3">
-                  <i class="bi bi-check-circle text-success me-2 fs-5"></i>
-                  <strong>Pristine Cleanliness:</strong> Immaculate accommodations and facilities
-                </li>
-                <li class="mb-3">
-                  <i class="bi bi-check-circle text-success me-2 fs-5"></i>
-                  <strong>Memorable Experiences:</strong> Perfect for families, couples, and groups
-                </li>
-              </ul>
-            </div>
-            <div class="col-lg-6">
-              <div class="card border-0 shadow-lg p-4" style="background: linear-gradient(135deg, #2c5f8d, #1f4d6d); color: white;">
-                <div class="text-center">
-                  <div style="font-size: 4rem; margin-bottom: 1rem;">⭐</div>
-                  <h3 class="mb-3">4.9 / 5.0</h3>
-                  <p class="mb-2">Based on ${this.reviews.length} verified guest reviews</p>
-                  <div class="mb-3">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                  </div>
-                  <p style="font-size: 0.95rem; opacity: 0.9;">Guests consistently praise our exceptional service, stunning location, and luxury amenities. We strive to exceed expectations on every visit.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Booking CTA -->
-      <section style="background: linear-gradient(135deg, #2c5f8d, #1f4d6d); color: white; padding: 4rem 2rem; text-align: center;">
-        <div class="container">
-          <h2>Ready to Experience Villa Paradise?</h2>
-          <p class="lead mb-4">Join thousands of satisfied guests. Book your stay today!</p>
-          <a href="/booking" class="btn btn-secondary btn-lg" data-link>
-            <i class="bi bi-calendar-check"></i> Book Now
-          </a>
+          ${this.renderReviewCards(reviews, auth)}
         </div>
       </section>
     `;
-    
+
+    if (auth.user) {
+      setTimeout(() => this.setupHandlers(auth), 0);
+    }
+
     return container;
+  }
+
+  getReviewFormHTML() {
+    return `
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h4 class="mb-3">Write a Review</h4>
+          <form id="review-form">
+            <div class="mb-3">
+              <label for="review-title" class="form-label">Title</label>
+              <input id="review-title" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label for="review-rating" class="form-label">Rating</label>
+              <select id="review-rating" class="form-select" required>
+                <option value="5">5 Stars</option>
+                <option value="4">4 Stars</option>
+                <option value="3">3 Stars</option>
+                <option value="2">2 Stars</option>
+                <option value="1">1 Star</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="review-content" class="form-label">Review</label>
+              <textarea id="review-content" class="form-control" rows="4" required></textarea>
+            </div>
+            <button class="btn btn-primary" type="submit" id="review-submit-btn">Submit Review</button>
+            <button class="btn btn-outline-secondary ms-2 d-none" type="button" id="review-cancel-btn">Cancel Edit</button>
+          </form>
+        </div>
+      </div>
+    `;
+  }
+
+  renderReviewCards(reviews, auth) {
+    if (!reviews.length) {
+      return '<div class="col-12"><div class="alert alert-light border">No reviews yet.</div></div>';
+    }
+
+    return reviews.map((review) => {
+      const ownerActions = auth.user && auth.user.id === review.user_id
+        ? `
+          <div class="mt-3 d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-primary" data-review-action="edit" data-review-id="${review.id}">Edit</button>
+            <button type="button" class="btn btn-sm btn-outline-danger" data-review-action="delete" data-review-id="${review.id}">Delete</button>
+          </div>
+        `
+        : '';
+
+      const name = review.profiles?.display_name || 'Guest';
+      return `
+        <div class="col-md-6 col-lg-4 mb-4">
+          <div class="review-bubble h-100">
+            <div class="review-header d-flex justify-content-between align-items-start">
+              <div>
+                <div class="reviewer-name">${name}</div>
+                <div class="reviewer-date">${new Date(review.created_at).toLocaleDateString()}</div>
+              </div>
+              <div class="reviewer-rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
+            </div>
+            <h6 class="mt-3">${review.title}</h6>
+            <p class="review-text">${review.content}</p>
+            ${ownerActions}
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  setupHandlers(auth) {
+    const form = document.getElementById('review-form');
+    const alerts = document.getElementById('review-alerts');
+    const cancelBtn = document.getElementById('review-cancel-btn');
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      alerts.innerHTML = '';
+
+      const payload = {
+        title: document.getElementById('review-title').value.trim(),
+        content: document.getElementById('review-content').value.trim(),
+        rating: Number(document.getElementById('review-rating').value)
+      };
+
+      if (this.editingReviewId) {
+        const { error } = await updateReview(this.editingReviewId, payload);
+        if (error) {
+          alerts.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+          return;
+        }
+        this.editingReviewId = null;
+      } else {
+        const { error } = await createReview(payload);
+        if (error) {
+          alerts.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+          return;
+        }
+      }
+
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      this.editingReviewId = null;
+      form.reset();
+      cancelBtn.classList.add('d-none');
+      document.getElementById('review-submit-btn').textContent = 'Submit Review';
+    });
+
+    document.querySelectorAll('[data-review-action="edit"]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const reviewId = button.getAttribute('data-review-id');
+        const reviews = await getPublicReviews();
+        const review = reviews.find((item) => item.id === reviewId && item.user_id === auth.user.id);
+
+        if (!review) {
+          return;
+        }
+
+        this.editingReviewId = review.id;
+        document.getElementById('review-title').value = review.title;
+        document.getElementById('review-content').value = review.content;
+        document.getElementById('review-rating').value = String(review.rating);
+        cancelBtn.classList.remove('d-none');
+        document.getElementById('review-submit-btn').textContent = 'Update Review';
+      });
+    });
+
+    document.querySelectorAll('[data-review-action="delete"]').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const reviewId = button.getAttribute('data-review-id');
+        const { error } = await deleteReview(reviewId);
+        if (error) {
+          alerts.innerHTML = `<div class="alert alert-danger">${error.message}</div>`;
+          return;
+        }
+
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      });
+    });
   }
 }

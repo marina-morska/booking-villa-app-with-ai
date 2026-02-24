@@ -40,7 +40,7 @@ export class Gallery {
   async render() {
     const container = document.createElement('div');
     container.className = 'page-enter';
-    
+
     const galleryGrid = this.galleryImages.map(img => `
       <div class="gallery-item" data-category="${img.category}" data-src="${img.src}" data-title="${img.title}">
         <img src="${img.src}" alt="${img.title}" />

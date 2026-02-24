@@ -1,3 +1,5 @@
+import { createContactMessage } from '../services/contactService.js';
+
 export class Contacts {
   constructor() {
     this.contactInfo = {
@@ -193,7 +195,7 @@ export class Contacts {
   setupFormHandlers() {
     const form = document.getElementById('contact-form');
     
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
       // Validation
@@ -231,6 +233,25 @@ export class Contacts {
           '</ul>';
         alertsDiv.appendChild(alert);
       } else {
+        const { error } = await createContactMessage({
+          fullName: name,
+          email,
+          phone: document.getElementById('contact-phone').value,
+          subject,
+          message
+        });
+
+        if (error) {
+          const errorAlert = document.createElement('div');
+          errorAlert.className = 'alert alert-danger mb-3';
+          errorAlert.innerHTML = `
+            <strong>Message Not Sent</strong>
+            <p class="mb-0 mt-2">${error.message}</p>
+          `;
+          alertsDiv.appendChild(errorAlert);
+          return;
+        }
+
         const successAlert = document.createElement('div');
         successAlert.className = 'alert alert-success mb-3';
         successAlert.innerHTML = `
@@ -238,19 +259,8 @@ export class Contacts {
           <p class="mb-0 mt-2">Thank you for contacting us. We will get back to you as soon as possible.</p>
         `;
         alertsDiv.appendChild(successAlert);
-        
-        // Reset form
+
         form.reset();
-        
-        // Log message details
-        console.log('Contact Message:', {
-          name: name,
-          email: email,
-          phone: document.getElementById('contact-phone').value,
-          subject: subject,
-          message: message,
-          newsletter: document.getElementById('contact-newsletter').checked
-        });
       }
     });
   }

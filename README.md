@@ -21,6 +21,8 @@ A modern, responsive multipage villa booking application built with vanilla Java
 - ✅ **Review Bubbles** - Guest testimonials with ratings displayed as bubbles
 - ✅ **Client-Side Routing** - SPA-like experience without server-side routing
 - ✅ **Icon Set** - Bootstrap Icons integrated throughout
+- ✅ **Supabase Auth + Roles** - Guest/User/Admin experience with role-aware UI and route guards
+- ✅ **User Profile** - Logged users can see their bookings, reviews, and contact messages
 
 ## 🛠 Tech Stack
 
@@ -49,19 +51,26 @@ A modern, responsive multipage villa booking application built with vanilla Java
    npm install
    ```
 
-3. **Start the development server**
+3. **Configure environment variables**
+   Create `.env` from `.env.example` and set:
+   ```bash
+   VITE_SUPABASE_URL=...
+   VITE_SUPABASE_ANON_KEY=...
+   ```
+
+4. **Start the development server**
    ```bash
    npm run dev
    ```
    The app will open automatically in your browser at `http://localhost:5173`
 
-4. **Build for production**
+5. **Build for production**
    ```bash
    npm run build
    ```
    Build files will be generated in the `dist` folder.
 
-5. **Preview the production build**
+6. **Preview the production build**
    ```bash
    npm run preview
    ```

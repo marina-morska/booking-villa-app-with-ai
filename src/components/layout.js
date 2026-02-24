@@ -1,4 +1,28 @@
-export function getNavbarHTML() {
+function getAuthLinks(authState = { user: null, role: 'guest' }) {
+  if (!authState.user) {
+    return `
+      <li class="nav-item">
+        <a class="nav-link" href="/login" data-link>Log in</a>
+      </li>
+    `;
+  }
+
+  return `
+    <li class="nav-item">
+      <a class="nav-link" href="/profile" data-link>Profile</a>
+    </li>
+    ${authState.role === 'admin' ? `
+      <li class="nav-item">
+        <a class="nav-link" href="/admin" data-link>Admin</a>
+      </li>
+    ` : ''}
+    <li class="nav-item">
+      <a class="nav-link" href="#" data-auth-action="logout">Logout</a>
+    </li>
+  `;
+}
+
+export function getNavbarHTML(authState = { user: null, role: 'guest' }) {
   return `
     <div class="navbar navbar-expand-lg navbar-dark">
       <div class="container-fluid">
@@ -35,6 +59,7 @@ export function getNavbarHTML() {
                 Contacts
               </a>
             </li>
+            ${getAuthLinks(authState)}
           </ul>
         </div>
       </div>
@@ -42,12 +67,12 @@ export function getNavbarHTML() {
   `;
 }
 
-export function renderNavbar(targetElement = null) {
+export function renderNavbar(targetElement = null, authState = { user: null, role: 'guest' }) {
   const navbar = targetElement || document.getElementById('navbar');
   if (!navbar) {
     return;
   }
-  navbar.innerHTML = getNavbarHTML();
+  navbar.innerHTML = getNavbarHTML(authState);
 }
 
 export function renderFooter() {

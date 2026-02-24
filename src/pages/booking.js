@@ -1,3 +1,6 @@
+import { getAuthState } from '../services/authService.js';
+import { createBookingRequest } from '../services/bookingService.js';
+
 export class Booking {
   constructor() {
     this.currentMonth = new Date();
@@ -57,13 +60,19 @@ export class Booking {
               <input id="booking-checkout" class="booking-input" type="date" placeholder="Select Date">
             </div>
 
-            <button class="booking-cta" type="button">Book Now</button>
+            <div class="booking-actions">
+              <button class="booking-check-btn" type="button">Check Availability</button>
+              <button class="booking-cta" type="button">Book Now</button>
+            </div>
           </form>
         </div>
       </div>
     `;
     
     container.innerHTML = html;
+    
+    // Set up the Book Now button event listener
+    this.setupBookNowButton(container);
     
     return container;
   }
@@ -313,5 +322,236 @@ export class Booking {
   isValidPhone(phone) {
     const re = /^\d{10,}$/;
     return re.test(phone.replace(/\D/g, ''));
+  }
+
+  setupBookNowButton(container) {
+    const bookNowBtn = container.querySelector('.booking-cta');
+    const checkAvailabilityBtn = container.querySelector('.booking-check-btn');
+    const checkinInput = container.querySelector('#booking-checkin');
+    const checkoutInput = container.querySelector('#booking-checkout');
+
+    bookNowBtn.addEventListener('click', () => this.handleBookNowClick());
+    checkAvailabilityBtn.addEventListener('click', () => this.handleCheckAvailabilityClick());
+    checkinInput.addEventListener('change', () => this.updateBookNowButtonState());
+    checkoutInput.addEventListener('change', () => this.updateBookNowButtonState());
+    
+    // Store container reference for modal creation
+    this.pageContainer = container;
+    this.updateBookNowButtonState();
+  }
+
+  setBookNowEnabled(isEnabled) {
+    const bookNowBtn = document.querySelector('.booking-cta');
+    if (!bookNowBtn) {
+      return;
+    }
+
+    bookNowBtn.disabled = !isEnabled;
+    bookNowBtn.setAttribute('aria-disabled', String(!isEnabled));
+  }
+
+  updateBookNowButtonState() {
+    const dateRange = this.getDateRangeFromInputs();
+    if (!dateRange) {
+      this.setBookNowEnabled(false);
+      return;
+    }
+
+    const isAvailable = this.checkAvailability(dateRange.checkinDate, dateRange.checkoutDate);
+    this.setBookNowEnabled(isAvailable);
+  }
+
+  getDateRangeFromInputs() {
+    const checkinInput = document.getElementById('booking-checkin');
+    const checkoutInput = document.getElementById('booking-checkout');
+
+    if (!checkinInput || !checkoutInput) {
+      return null;
+    }
+
+    if (!checkinInput.value || !checkoutInput.value) {
+      return null;
+    }
+
+    const checkinDate = new Date(checkinInput.value);
+    const checkoutDate = new Date(checkoutInput.value);
+
+    if (checkinDate >= checkoutDate) {
+      return null;
+    }
+
+    return { checkinDate, checkoutDate };
+  }
+
+  async handleCheckAvailabilityClick() {
+    const checkinInput = document.getElementById('booking-checkin');
+    const checkoutInput = document.getElementById('booking-checkout');
+
+    if (!checkinInput.value || !checkoutInput.value) {
+      this.showModal('Please select check-in and check-out dates.', 'warning');
+      return;
+    }
+
+    const dateRange = this.getDateRangeFromInputs();
+    if (!dateRange) {
+      this.setBookNowEnabled(false);
+      this.showModal('Check-out date must be after check-in date.', 'warning');
+      return;
+    }
+
+    const isAvailable = this.checkAvailability(dateRange.checkinDate, dateRange.checkoutDate);
+    this.setBookNowEnabled(isAvailable);
+
+    if (!isAvailable) {
+      this.showModal('The villa is not available for the requested period. Please select other dates.', 'error');
+      return;
+    }
+
+    const authState = await getAuthState();
+    if (!authState.user) {
+      this.showModal('The villa is available for this period, please login or register to continue your booking.', 'success');
+      setTimeout(() => {
+        window.history.pushState(null, '', '/login?next=/booking');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }, 900);
+      return;
+    }
+
+    this.showModal('The villa is available for this period, you can book your stay', 'success');
+  }
+
+  handleBookNowClick() {
+    const checkinInput = document.getElementById('booking-checkin');
+    const checkoutInput = document.getElementById('booking-checkout');
+    const guestsSelect = document.getElementById('booking-guests');
+
+    // Validation
+    if (!checkinInput.value || !checkoutInput.value || !guestsSelect.value) {
+      this.showModal('Please fill in all fields.', 'warning');
+      return;
+    }
+
+    const dateRange = this.getDateRangeFromInputs();
+    if (!dateRange) {
+      this.setBookNowEnabled(false);
+      this.showModal('Check-out date must be after check-in date.', 'warning');
+      return;
+    }
+
+    // Check availability
+    const isAvailable = this.checkAvailability(dateRange.checkinDate, dateRange.checkoutDate);
+    this.setBookNowEnabled(isAvailable);
+
+    if (!isAvailable) {
+      this.showModal('The villa is not available for the requested period. Please select other dates.', 'error');
+      return;
+    }
+
+    this.submitBookingForAvailablePeriod(dateRange, guestsSelect.value);
+  }
+
+  async submitBookingForAvailablePeriod(dateRange, guests) {
+    const authState = await getAuthState();
+
+    if (!authState.user) {
+      this.showModal('The villa is available for this period, please login or register to continue your booking.', 'success');
+      setTimeout(() => {
+        window.history.pushState(null, '', '/login?next=/booking');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }, 900);
+      return;
+    }
+
+    const payload = {
+      checkIn: dateRange.checkinDate.toISOString().slice(0, 10),
+      checkOut: dateRange.checkoutDate.toISOString().slice(0, 10),
+      guests: Number(guests)
+    };
+
+    const { error } = await createBookingRequest(payload);
+
+    if (error) {
+      this.showModal(`Booking could not be created: ${error.message}`, 'error');
+      return;
+    }
+
+    this.showModal('Booking request submitted. Status: awaiting confirmation.', 'success');
+  }
+
+  checkAvailability(startDate, endDate) {
+    // Check if any date in the range is booked
+    for (let currentDate = new Date(startDate); currentDate < endDate; currentDate.setDate(currentDate.getDate() + 1)) {
+      if (this.bookedDates.has(currentDate.toDateString())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  showModal(message, type = 'info') {
+    // Remove existing modal if present
+    const existingModal = document.getElementById('booking-modal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+
+    // Create modal
+    const modal = document.createElement('div');
+    modal.id = 'booking-modal';
+    modal.className = `booking-modal booking-modal-${type}`;
+
+    // Determine icon and title based on type
+    let icon = '✓';
+    let title = 'Success';
+    
+    if (type === 'error') {
+      icon = '✕';
+      title = 'Not Available';
+    } else if (type === 'warning') {
+      icon = '!';
+      title = 'Please Note';
+    } else if (type === 'success') {
+      icon = '✓';
+      title = 'Available!';
+    }
+
+    modal.innerHTML = `
+      <div class="booking-modal-overlay"></div>
+      <div class="booking-modal-content">
+        <div class="booking-modal-icon booking-modal-icon-${type}">
+          ${icon}
+        </div>
+        <h3 class="booking-modal-title">${title}</h3>
+        <p class="booking-modal-message">${message}</p>
+        <button class="booking-modal-btn" type="button">Close</button>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Show modal with animation
+    setTimeout(() => modal.classList.add('active'), 10);
+
+    // Close button handler
+    const closeBtn = modal.querySelector('.booking-modal-btn');
+    closeBtn.addEventListener('click', () => this.closeModal(modal));
+
+    // Close on overlay click
+    const overlay = modal.querySelector('.booking-modal-overlay');
+    overlay.addEventListener('click', () => this.closeModal(modal));
+
+    // Close on Escape key
+    const escapeHandler = (e) => {
+      if (e.key === 'Escape') {
+        this.closeModal(modal);
+        document.removeEventListener('keydown', escapeHandler);
+      }
+    };
+    document.addEventListener('keydown', escapeHandler);
+  }
+
+  closeModal(modal) {
+    modal.classList.remove('active');
+    setTimeout(() => modal.remove(), 300);
   }
 }
