@@ -1,257 +1,231 @@
-# Villa Blue Summer - Luxury Villa Booking Website
+# Villa Blue Summer - Villa Booking Application
 
-A modern, responsive multipage villa booking application built with vanilla JavaScript, Bootstrap 5, and Vite.
+Client-server villa booking app built with vanilla JavaScript + Bootstrap on the frontend and Supabase (DB, Auth, Storage, Edge Functions) on the backend.
 
-## 🏨 Features
+## Project Description
 
-### Pages
-- **Home** (`/`) - Landing page with villa overview, features, and guest reviews
-- **Booking** (`/booking`) - Interactive calendar with date-range selection, booking form, and validation
-- **Gallery** (`/gallery`) - Photo gallery with filter functionality and lightbox viewer
-- **Amenities** (`/amenities`) - Cards displaying amenities and services
-- **Contacts** (`/contacts`) - Contact form, business information, location map, and FAQs
+This project is for booking the whole villa (not individual rooms). It supports:
+- public pages (home, gallery, reviews, contacts)
+- authenticated user flows (register, login, profile)
+- admin workflows (manage bookings, messages, gallery photos)
 
-### Key Features
-- ✅ **Interactive Calendar** - Visual availability calendar with date-range selection
-- ✅ **Form Validation** - Client-side validation for booking and contact forms
-- ✅ **Responsive Design** - Mobile-first approach, works on all devices
-- ✅ **Semantic HTML** - Proper HTML5 semantic tags for accessibility
-- ✅ **Modern UI** - Consistent color scheme, smooth animations, hover effects
-- ✅ **Bootstrap 5** - Leveraging Bootstrap components and utilities
-- ✅ **Review Bubbles** - Guest testimonials with ratings displayed as bubbles
-- ✅ **Client-Side Routing** - SPA-like experience without server-side routing
-- ✅ **Icon Set** - Bootstrap Icons integrated throughout
-- ✅ **Supabase Auth + Roles** - Guest/User/Admin experience with role-aware UI and route guards
-- ✅ **User Profile** - Logged users can see their bookings, reviews, and contact messages
+## Architecture
 
-## 🛠 Tech Stack
+- Frontend: HTML, CSS, JavaScript (ES modules), Bootstrap 5
+- Backend: Supabase Postgres + Auth + Storage + Edge Functions
+- Build: Node.js, npm, Vite
+- Deployment target: Netlify (or similar static host)
 
-- **Frontend Framework**: Vanilla ES6 JavaScript
-- **UI Framework**: Bootstrap 5
-- **Icons**: Bootstrap Icons
-- **Build Tool**: Vite
-- **HTML**: Semantic HTML5
-- **CSS**: Custom CSS with CSS variables for theming
+### App Flow
 
-## 📦 Installation
+- SPA-style client routing in `src/main.js` with multi-screen pages in separate files.
+- Data access via service modules in `src/services/`.
+- RLS-based access control in PostgreSQL policies.
+
+## Implemented Pages
+
+- `/` and `/home` - Home
+- `/booking` - Booking
+- `/gallery` - Gallery
+- `/reviews` - Reviews
+- `/contacts` - Contacts
+- `/login` - Login
+- `/register` - Register
+- `/profile` - User profile
+- `/admin` - Admin panel
+
+## Authentication and Roles
+
+- Supabase Auth for registration/login/logout.
+- Roles are implemented using `public.user_roles` (`admin`, `user`).
+- Route guards and role checks are applied in frontend routing.
+- RLS policies restrict data access per user/admin role.
+
+## Database Schema (Visualization)
+
+Main domain tables are in `public` schema and reference `auth.users`.
+
+```mermaid
+erDiagram
+  AUTH_USERS {
+    uuid id PK
+    text email
+  }
+
+  PROFILES {
+    uuid id PK, FK
+    text display_name
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  USER_ROLES {
+    uuid user_id PK, FK
+    roles role
+    timestamptz created_at
+  }
+
+  BOOKINGS {
+    uuid id PK
+    uuid user_id FK
+    date check_in
+    date check_out
+    int guests
+    booking_status status
+    text admin_note
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  REVIEWS {
+    uuid id PK
+    uuid user_id FK
+    int rating
+    text title
+    text content
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  CONTACT_MESSAGES {
+    uuid id PK
+    uuid user_id FK
+    text full_name
+    text email
+    text phone
+    text subject
+    text message
+    text admin_reply
+    timestamptz replied_at
+    timestamptz created_at
+    timestamptz updated_at
+  }
+
+  PHOTOS {
+    uuid id PK
+    text title
+    text storage_path
+    timestamptz created_at
+  }
+
+  AUTH_USERS ||--|| PROFILES : has
+  AUTH_USERS ||--|| USER_ROLES : has
+  AUTH_USERS ||--o{ BOOKINGS : creates
+  AUTH_USERS ||--o{ REVIEWS : writes
+  AUTH_USERS ||--o{ CONTACT_MESSAGES : sends
+```
+
+## Storage
+
+- Bucket: `villa-photos`
+- App stores gallery image files in Supabase Storage.
+- Metadata is stored in `public.photos`.
+
+## Migrations
+
+Schema/policy changes are tracked in `migrations/`.
+
+Key migration files include:
+- `20260224_auth_roles_booking_reviews_messages.sql`
+- `20260224_storage_policies.sql`
+- `20260224_security_policy_fixes.sql`
+- `20260224_reviews_rpc_and_profile_perf_indexes.sql`
+- `20260224_contact_messages_user_delete_cascade.sql`
+- `20260224_cleanup_orphaned_user_content_and_profile_delete_trigger.sql`
+
+## Local Development Setup
 
 ### Prerequisites
-- Node.js 14.0 or higher
-- npm 6.0 or higher
+- Node.js 18+
+- npm 8+
 
-### Setup
+### 1) Install
 
-1. **Clone or navigate to the project directory**
-   ```bash
-   cd booking-villa-app-with-ai
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Configure environment variables**
-   Create `.env` from `.env.example` and set:
-   ```bash
-   VITE_SUPABASE_URL=...
-   VITE_SUPABASE_ANON_KEY=...
-   ```
-
-4. **Configure Supabase Edge Function secrets (for admin reply emails)**
-   In Supabase project settings, add:
-   ```bash
-   RESEND_API_KEY=...
-   ADMIN_REPLY_FROM_EMAIL=Villa Blue Summer <noreply@your-domain.com>
-   ```
-
-   If you do not have a domain yet, you can still test with:
-   ```bash
-   ADMIN_REPLY_FROM_EMAIL=Villa Blue Summer <onboarding@resend.dev>
-   ADMIN_REPLY_TEST_TO_EMAIL=your-verified-email@example.com
-   ```
-   `ADMIN_REPLY_TEST_TO_EMAIL` forces all reply emails to your test inbox.
-
-5. **Start the development server**
-   ```bash
-   npm run dev
-   ```
-   The app will open automatically in your browser at `http://localhost:5173`
-
-6. **Build for production**
-   ```bash
-   npm run build
-   ```
-   Build files will be generated in the `dist` folder.
-
-7. **Preview the production build**
-   ```bash
-   npm run preview
-   ```
-
-8. **Upload all local gallery images to Supabase Storage (one-time/whenever needed)**
-   ```bash
-   SUPABASE_SERVICE_ROLE_KEY=... npm run upload:gallery
-   ```
-   This uploads files from `images/` to bucket `villa-photos` and syncs `photos.storage_path`.
-   On Windows PowerShell:
-   ```powershell
-   $env:SUPABASE_SERVICE_ROLE_KEY="..."; npm run upload:gallery
-   ```
-   Or use admin credentials (no service role key):
-   ```powershell
-   $env:SUPABASE_ADMIN_EMAIL="admin@example.com"; $env:SUPABASE_ADMIN_PASSWORD="your-password"; npm run upload:gallery
-   ```
-   To re-create bucket content exactly from local `images/` order and names:
-   ```powershell
-   $env:CLEAN_GALLERY_BUCKET="true"; $env:SUPABASE_ADMIN_EMAIL="admin@example.com"; $env:SUPABASE_ADMIN_PASSWORD="your-password"; npm run upload:gallery
-   ```
-
-## 📁 Project Structure
-
-```
-booking-villa-app-with-ai/
-├── index.html                 # Main HTML entry point
-├── src/
-│   ├── main.js               # Application entry point & routing
-│   ├── styles.css            # Global styles and theme
-│   ├── components/
-│   │   └── layout.js         # Navbar and Footer components
-│   └── pages/
-│       ├── home.js           # Home page
-│       ├── booking.js        # Booking page with calendar
-│       ├── gallery.js        # Gallery page with filters
-│       ├── amenities.js      # Amenities page
-│       └── contacts.js       # Contact page
-├── package.json              # Project dependencies
-├── vite.config.js           # Vite configuration
-└── README.md                # This file
+```bash
+npm install
 ```
 
-## 🎨 Color Scheme
+### 2) Environment
 
-The app uses a professional color scheme defined in CSS variables:
+Create `.env` with:
 
-- **Primary Color**: `#2c5f8d` (Deep Blue)
-- **Secondary Color**: `#f39c12` (Warm Gold)
-- **Accent Color**: `#27ae60` (Green)
-- **Light Background**: `#f8f9fa`
-- **Dark Text**: `#2c3e50`
+```bash
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+```
 
-These can be customized by modifying the `:root` variables in `src/styles.css`.
+For email reply Edge Function, configure in Supabase project secrets:
 
-## 📱 Responsive Breakpoints
+```bash
+RESEND_API_KEY=...
+ADMIN_REPLY_FROM_EMAIL=Villa Blue Summer <noreply@your-domain.com>
+ADMIN_REPLY_TEST_TO_EMAIL=your-verified-email@example.com
+```
 
-- **Desktop**: 1200px and above
-- **Tablet**: 768px to 1199px
-- **Mobile**: Below 768px
+### 3) Run
 
-## 🗂️ Key Components
+```bash
+npm run dev
+```
 
-### Calendar Component
-- Interactive month-by-month navigation
-- Visual indicators for available, booked, and selected dates
-- Date range selection with visual feedback
-- Automatic calculation of number of nights
+### 4) Build
 
-### Review Bubbles
-- Guest avatars with initials
-- Star ratings
-- Guest name and date
-- Review text in italic style
+```bash
+npm run build
+```
 
-### Amenity Cards
-- Icon-based display
-- Title and description
-- Hover effects with color transitions
-- Organized grid layout
+## Utility Scripts
 
-### Contact Form
-- Subject dropdown selection
-- Phone number (optional)
-- Newsletter subscription checkbox
-- Form validation and success messages
+### Upload local gallery files to Supabase Storage
 
-### Gallery
-- Grid-based image display
-- Category filter buttons
-- Lightbox modal viewer
-- Responsive image layout
+```bash
+npm run upload:gallery
+```
 
-## ♿ Accessibility Features
+Required env (either mode):
+- service-role mode: `SUPABASE_SERVICE_ROLE_KEY`
+- admin-login mode: `SUPABASE_ADMIN_EMAIL`, `SUPABASE_ADMIN_PASSWORD`
 
-- Semantic HTML structure
-- ARIA labels where appropriate
-- Keyboard navigation support
-- Color contrast compliance
-- Form labels properly associated with inputs
-- Screen reader considerations (sr-only class)
+Optional:
+- `CLEAN_GALLERY_BUCKET=true` to wipe bucket before upload
 
-## 🔧 JavaScript Features
+### Seed sample users/data
 
-### Client-Side Routing
-- Hash-based routing system
-- Smooth page transitions
-- Active navigation link highlighting
-- Browser history management
+```bash
+npm run seed:sample
+```
 
-### Form Validation
-- Email format validation
-- Phone number validation
-- Required field checking
-- User-friendly error messages
+Requires:
+- `SUPABASE_SERVICE_ROLE_KEY`
 
-### Date Handling
-- Month/year formatting
-- Date range calculations
-- Booked date tracking
-- Past date disabling
+This creates/updates sample auth users:
+- `stefie@gmail.com / pass123`
+- `teo@gmail.com / pass123`
+- `petkata@gmail.com / pass123`
 
-## 🚀 Deployment
+And seeds sample `profiles`, `user_roles`, `bookings`, `reviews`, `contact_messages`.
 
-### Netlify Deployment
-1. Push code to GitHub
-2. Connect repository to Netlify
-3. Set build command: `npm run build`
-4. Set publish directory: `dist`
-5. Deploy!
+## Deployment (Netlify)
 
-### Other Platforms
-The built `dist` folder can be deployed to any static hosting service (Vercel, GitHub Pages, AWS S3, etc.)
+1. Connect repo
+2. Build command: `npm run build`
+3. Publish dir: `dist`
+4. Set env vars:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
 
-## 📋 Future Enhancements
+## Key Folders and Files
 
-- Backend integration with Supabase
-- User authentication system
-- Real booking persistence
-- Payment gateway integration
-- Admin dashboard for managing bookings
-- Email notifications
-- Guest reviews submission
-- Dark mode toggle
-- Multi-language support
-- Advanced search and filtering
+- `src/main.js` - routing, page rendering, auth-aware navigation
+- `src/pages/` - page-level UI modules
+- `src/services/` - Supabase data access layer and business logic
+- `src/components/layout.js` - navbar + footer
+- `src/styles.css` - global styling and responsive behavior
+- `migrations/` - SQL schema/policy history
+- `scripts/` - seeding and storage upload utilities
+- `supabase/functions/send-admin-reply-email/index.ts` - email reply edge function
 
-## 📝 Notes
+## Notes
 
-- The calendar displays mock booked dates for demonstration
-- Form submissions are logged to console (not persisted)
-- Gallery images use placeholder backgrounds
-- Map is embedded from Google Maps (can be customized)
-- Email and phone fields are validated client-side only
-
-## 🤝 Contributing
-
-Feel free to fork this project and submit pull requests for any improvements.
-
-## 📄 License
-
-This project is open source and available for personal and commercial use.
-
-## 📞 Support
-
-For questions or issues, please reach out through the contact form on the website.
-
----
-
-**Built with ❤️ for luxury villa bookings**
+- The app uses client-side routing with full-path URLs (e.g. `/gallery`, `/admin`).
+- If hosting requires SPA rewrites, configure host redirects to `index.html`.
