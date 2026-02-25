@@ -175,7 +175,7 @@ export async function getPublicGalleryPhotos(forceRefresh = false) {
 
   const { data: photosTableRows } = await supabase
     .from('photos')
-    .select('title, storage_path')
+    .select('title, storage_path, created_at')
     .order('created_at', { ascending: false });
 
   const titleByPath = new Map((photosTableRows ?? [])
@@ -186,11 +186,7 @@ export async function getPublicGalleryPhotos(forceRefresh = false) {
     .from(GALLERY_BUCKET)
     .list('', { limit: 500, offset: 0, sortBy: { column: 'name', order: 'asc' } });
 
-  if (storageError) {
-    return { data: [], error: storageError };
-  }
-
-  const photos = (storageObjects ?? [])
+  const photosFromStorageList = (storageObjects ?? [])
     .filter((object) => object.name && !object.name.endsWith('/'))
     .map((object) => {
       const thumbnailUrl = buildPublicUrl(object.name, {
@@ -214,6 +210,38 @@ export async function getPublicGalleryPhotos(forceRefresh = false) {
     })
     .filter((photo) => photo.src)
     .sort((left, right) => compareByGalleryIndex(left.storagePath, right.storagePath));
+
+  const photosFromTable = (photosTableRows ?? [])
+    .filter((row) => row?.storage_path)
+    .map((row) => {
+      const thumbnailUrl = buildPublicUrl(row.storage_path, {
+        width: 900,
+        quality: 70,
+        resize: 'contain'
+      });
+      const lightboxUrl = buildPublicUrl(row.storage_path, {
+        width: 2200,
+        quality: 82,
+        resize: 'contain'
+      });
+
+      return {
+        id: `table-${row.storage_path}`,
+        title: row.title || formatTitleFromPath(row.storage_path),
+        src: thumbnailUrl,
+        lightboxSrc: lightboxUrl,
+        storagePath: row.storage_path,
+        createdAt: row.created_at || null
+      };
+    })
+    .filter((photo) => photo.src)
+    .sort((left, right) => compareByGalleryIndex(left.storagePath, right.storagePath));
+
+  const photos = photosFromStorageList.length ? photosFromStorageList : photosFromTable;
+
+  if (!photos.length && storageError) {
+    return { data: [], error: storageError };
+  }
 
   galleryPhotosCache = {
     data: photos,

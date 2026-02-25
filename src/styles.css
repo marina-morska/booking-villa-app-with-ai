@@ -42,8 +42,9 @@ html, body {
 /* HOME PAGE CONTAINER STYLES (Encapsulated) */
 #app {
   min-height: 100vh;
+  background-color: #213140;
   background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
-    url('../images/background-home.jpg') center / cover no-repeat fixed;
+    url('../images/background-home.JPG') center / cover no-repeat;
 }
 
 #app.app {
@@ -54,7 +55,7 @@ html, body {
 
 /* OTHER PAGES CONTAINER STYLES */
 .other-pages-container {
-  display: flex;
+  display: none;
   flex-direction: column;
   min-height: 100vh;
   background-color: #FFEDC7;
@@ -301,6 +302,20 @@ a:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
   color: var(--white);
+}
+
+#app .hero .home-book-btn {
+  background: #F96E5B !important;
+  border: 1px solid #F96E5B !important;
+  color: #ffffff !important;
+  box-shadow: 0 8px 18px rgba(249, 110, 91, 0.3);
+}
+
+#app .hero .home-book-btn:hover,
+#app .hero .home-book-btn:focus {
+  background: #e85844 !important;
+  border-color: #e85844 !important;
+  color: #ffffff !important;
 }
 
 .btn-outline-primary {

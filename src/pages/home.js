@@ -12,7 +12,7 @@ export class Home {
           <p>Experience comfort and warmth and create unforgettable memories</p>
           <p>A luxurius house with incredible sea views in the heart of Ropotamo Nature Reserve. Villa Blue Summer, Primorsko has bed capacity of 8 distributed in 3 separate rooms, each with its own bathroom.</p>
           <p>The villa has a large, luxurious and heated swimming pool, a fully equipped kitchen, and spacious living areas perfect for relaxation and entertainment.</p>
-          <a href="/booking" class="btn btn-secondary btn-lg" data-link>
+          <a href="/booking" class="btn btn-secondary btn-lg home-book-btn" data-link>
             <i class="bi bi-calendar-check"></i> Book Now
           </a>
         </div>
