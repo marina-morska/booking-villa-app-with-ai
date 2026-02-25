@@ -229,6 +229,36 @@ Live URL: https://bluesummervilla.netlify.app/
 - `scripts/` - seeding and storage upload utilities
 - `supabase/functions/send-admin-reply-email/index.ts` - email reply edge function
 
+## How to Test
+
+### User flow
+1. Open https://bluesummervilla.netlify.app/
+2. Login with `stefie@gmail.com / pass123`
+3. Create a booking from `/booking`
+4. Open `/profile` and verify booking appears
+5. Send a contact message from `/contacts` and verify it appears in profile messages
+
+Expected result:
+- User can login, create booking, and see own data in profile.
+
+### Admin flow
+1. Login with an admin account
+2. Open `/admin`
+3. Change booking status (Pending/Confirm/Reject/Cancel)
+4. Reply to a user message
+5. Verify the user can see the reply in `/profile`
+
+Expected result:
+- Admin actions persist and are visible to the corresponding user.
+
+### Gallery upload flow
+1. Open `/admin` and upload a photo from Gallery Photos
+2. Open `/gallery` and verify the new photo is visible
+3. (Optional) Run `npm run upload:gallery` locally to bulk upload from `images/`
+
+Expected result:
+- Uploaded images are stored in Supabase Storage and rendered in gallery.
+
 ## Notes
 
 - The app uses client-side routing with full-path URLs (e.g. `/gallery`, `/admin`).
