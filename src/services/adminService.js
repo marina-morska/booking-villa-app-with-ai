@@ -96,7 +96,7 @@ export async function replyToMessage(messageId, adminReply, recipient = null) {
     body: {
       toEmail: recipient.email,
       guestName: recipient.fullName || 'Guest',
-      subject: recipient.subject || 'Your message to Villa Paradise',
+      subject: recipient.subject || 'Your message to Villa Blue Summer',
       adminReply
     }
   });

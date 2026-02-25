@@ -27,7 +27,7 @@ export function getNavbarHTML(authState = { user: null, role: 'guest' }) {
     <div class="navbar navbar-expand-lg navbar-dark">
       <div class="container-fluid">
         <a class="navbar-brand" href="/" data-link>
-          Villa Paradise
+          Villa Blue Summer
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span class="navbar-toggler-icon"></span>
@@ -81,7 +81,7 @@ export function renderFooter() {
   
   const footerHTML = `
     <div class="footer-bottom">
-      <p>&copy; ${currentYear} Villa Paradise. All rights reserved.</p>
+      <p>&copy; ${currentYear} Villa Blue Summer. All rights reserved.</p>
       <div style="font-size: 1.5rem; display: flex; gap: 1rem; justify-content: center; margin-top: 0.75rem;">
         <a href="#" style="color: rgba(255, 255, 255, 0.8);" title="Facebook">
           <i class="bi bi-facebook"></i>

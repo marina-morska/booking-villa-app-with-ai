@@ -36,7 +36,7 @@ Deno.serve(async (req: Request) => {
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
   const resendApiKey = Deno.env.get("RESEND_API_KEY");
-  const fromEmail = Deno.env.get("ADMIN_REPLY_FROM_EMAIL") || "Villa Paradise <onboarding@resend.dev>";
+  const fromEmail = Deno.env.get("ADMIN_REPLY_FROM_EMAIL") || "Villa Blue Summer <onboarding@resend.dev>";
   const forcedTestRecipient = Deno.env.get("ADMIN_REPLY_TEST_TO_EMAIL")?.trim() || "";
 
   if (!supabaseUrl || !supabaseAnonKey) {
@@ -83,7 +83,7 @@ Deno.serve(async (req: Request) => {
   const requestedToEmail = payload?.toEmail ? String(payload.toEmail).trim() : "";
   const toEmail = forcedTestRecipient || requestedToEmail;
   const guestName = payload?.guestName ? String(payload.guestName).trim() : "Guest";
-  const subject = payload?.subject ? String(payload.subject).trim() : "Your message to Villa Paradise";
+  const subject = payload?.subject ? String(payload.subject).trim() : "Your message to Villa Blue Summer";
   const adminReply = payload?.adminReply ? String(payload.adminReply).trim() : "";
 
   if (!toEmail || !adminReply) {
@@ -97,7 +97,7 @@ Deno.serve(async (req: Request) => {
       <blockquote style="margin: 16px 0; padding: 12px 16px; border-left: 4px solid #3F9AAE; background: #f8fafc;">
         ${escapeHtml(adminReply).replaceAll("\n", "<br>")}
       </blockquote>
-      <p>Best regards,<br>Villa Paradise Team</p>
+      <p>Best regards,<br>Villa Blue Summer Team</p>
     </div>
   `;
 
@@ -110,7 +110,7 @@ Deno.serve(async (req: Request) => {
     body: JSON.stringify({
       from: fromEmail,
       to: [toEmail],
-      subject: `Villa Paradise reply: ${subject}`,
+      subject: `Villa Blue Summer reply: ${subject}`,
       html
     })
   });

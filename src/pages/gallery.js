@@ -16,7 +16,7 @@ export class Gallery {
       <section class="hero" style="background-color: #FFEDC7;">
         <div class="hero-content">
           <h1>Villa Gallery</h1>
-          <p>Explore the beauty and elegance of Villa Paradise</p>
+          <p>Explore the beauty and elegance of Villa Blue Summer</p>
         </div>
       </section>
 
@@ -51,7 +51,7 @@ export class Gallery {
           <div class="row">
             <div class="col-lg-6 mb-4 mb-lg-0">
               <h2>Stunning Accommodations</h2>
-              <p class="lead">Every corner of Villa Paradise is designed with elegance and comfort in mind. From spacious bedrooms to modern amenities, our villa offers everything you need for an unforgettable stay.</p>
+              <p class="lead">Every corner of Villa Blue Summer is designed with elegance and comfort in mind. From spacious bedrooms to modern amenities, our villa offers everything you need for an unforgettable stay.</p>
               <ul class="list-unstyled">
                 <li class="mb-2">
                   <i class="bi bi-check-circle text-success me-2"></i>

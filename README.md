@@ -1,4 +1,4 @@
-# Villa Paradise - Luxury Villa Booking Website
+# Villa Blue Summer - Luxury Villa Booking Website
 
 A modern, responsive multipage villa booking application built with vanilla JavaScript, Bootstrap 5, and Vite.
 
@@ -62,12 +62,12 @@ A modern, responsive multipage villa booking application built with vanilla Java
    In Supabase project settings, add:
    ```bash
    RESEND_API_KEY=...
-   ADMIN_REPLY_FROM_EMAIL=Villa Paradise <noreply@your-domain.com>
+   ADMIN_REPLY_FROM_EMAIL=Villa Blue Summer <noreply@your-domain.com>
    ```
 
    If you do not have a domain yet, you can still test with:
    ```bash
-   ADMIN_REPLY_FROM_EMAIL=Villa Paradise <onboarding@resend.dev>
+   ADMIN_REPLY_FROM_EMAIL=Villa Blue Summer <onboarding@resend.dev>
    ADMIN_REPLY_TEST_TO_EMAIL=your-verified-email@example.com
    ```
    `ADMIN_REPLY_TEST_TO_EMAIL` forces all reply emails to your test inbox.

@@ -156,7 +156,7 @@ class App {
     
     const footerHTML = `
       <div class="footer-bottom">
-        <p>&copy; ${currentYear} Villa Paradise. All rights reserved.</p>
+        <p>&copy; ${currentYear} Villa Blue Summer. All rights reserved.</p>
         <div style="font-size: 1.5rem; display: flex; gap: 1rem; justify-content: center; margin-top: 0.75rem;">
           <a href="#" style="color: rgba(255, 255, 255, 0.8);" title="Facebook">
             <i class="bi bi-facebook"></i>
