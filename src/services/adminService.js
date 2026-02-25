@@ -12,10 +12,36 @@ export async function getAllBookings() {
     return { data: [], error: new Error('Supabase is not configured') };
   }
 
-  return supabase
+  const { data: bookings, error } = await supabase
     .from('bookings')
     .select('id, user_id, check_in, check_out, guests, status, created_at')
     .order('created_at', { ascending: false });
+
+  if (error) {
+    return { data: [], error };
+  }
+
+  const userIds = [...new Set((bookings ?? []).map((booking) => booking.user_id).filter(Boolean))];
+  if (!userIds.length) {
+    return { data: bookings ?? [], error: null };
+  }
+
+  const { data: profiles, error: profilesError } = await supabase
+    .from('profiles')
+    .select('id, display_name')
+    .in('id', userIds);
+
+  if (profilesError) {
+    return { data: bookings ?? [], error: null };
+  }
+
+  const displayNameByUserId = new Map((profiles ?? []).map((profile) => [profile.id, profile.display_name]));
+  const enrichedBookings = (bookings ?? []).map((booking) => ({
+    ...booking,
+    guest_name: displayNameByUserId.get(booking.user_id) || null
+  }));
+
+  return { data: enrichedBookings, error: null };
 }
 
 export async function updateBookingStatus(bookingId, status, adminNote = null) {

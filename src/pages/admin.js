@@ -148,7 +148,7 @@ export class Admin {
           <tbody>
             ${bookings.map((booking) => `
               <tr>
-                <td><small>${this.escapeHtml(this.formatUser(booking.user_id))}</small></td>
+                <td><small>${this.escapeHtml(this.formatGuestName(booking))}</small></td>
                 <td>${this.formatDate(booking.check_in)} → ${this.formatDate(booking.check_out)}</td>
                 <td>${booking.guests}</td>
                 <td><span class="badge ${this.statusBadgeClass(booking.status)}">${this.escapeHtml(this.formatBookingStatus(booking.status))}</span></td>
@@ -407,6 +407,15 @@ export class Admin {
     }
 
     return `${userId.slice(0, 8)}...${userId.slice(-4)}`;
+  }
+
+  formatGuestName(booking = {}) {
+    const displayName = String(booking.guest_name || '').trim();
+    if (displayName) {
+      return displayName;
+    }
+
+    return this.formatUser(booking.user_id);
   }
 
   formatDate(value) {
