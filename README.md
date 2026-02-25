@@ -203,9 +203,13 @@ This creates/updates sample auth users:
 - `teo@gmail.com / pass123`
 - `petkata@gmail.com / pass123`
 
+These sample credentials are tested and working on the deployed app.
+
 And seeds sample `profiles`, `user_roles`, `bookings`, `reviews`, `contact_messages`.
 
 ## Deployment (Netlify)
+
+Live URL: https://bluesummervilla.netlify.app/
 
 1. Connect repo
 2. Build command: `npm run build`
