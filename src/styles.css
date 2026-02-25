@@ -1252,7 +1252,7 @@ footer {
 
 .booking-bar {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr auto;
+  grid-template-columns: minmax(140px, 1.2fr) minmax(130px, 1fr) minmax(130px, 1fr) auto;
   gap: 0;
   align-items: center;
   width: 100%;
@@ -1318,6 +1318,8 @@ footer {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  flex-wrap: nowrap;
+  margin-left: 0.6rem;
 }
 
 .booking-check-btn {
@@ -1329,6 +1331,7 @@ footer {
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.2px;
+  white-space: nowrap;
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
@@ -1346,6 +1349,7 @@ footer {
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.2px;
+  white-space: nowrap;
   box-shadow: 0 8px 18px rgba(249, 110, 91, 0.35);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -1498,6 +1502,27 @@ footer {
 }
 
 /* Responsive Adjustments for Booking Page */
+@media (max-width: 1200px) {
+  .booking-bar {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem 1rem;
+  }
+
+  .booking-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+    margin-left: 0;
+  }
+
+  .booking-field {
+    padding: 0 0.5rem;
+  }
+
+  .booking-field:not(:last-of-type)::after {
+    display: none;
+  }
+}
+
 @media (max-width: 992px) {
   .booking-header {
     padding: 2.5rem 1.5rem;
@@ -1516,8 +1541,19 @@ footer {
   }
 
   .booking-bar {
-    grid-template-columns: 1.1fr 1fr 1fr auto;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem 1rem;
     padding: 1rem 1.25rem;
+  }
+
+  .booking-actions {
+    grid-column: 1 / -1;
+    justify-content: stretch;
+  }
+
+  .booking-check-btn,
+  .booking-cta {
+    flex: 1;
   }
 
   .booking-calendar-section {
