@@ -1,20 +1,39 @@
 import { supabase } from './supabaseClient.js';
-import { getAuthState } from './authService.js';
 
 export async function createContactMessage(payload) {
   if (!supabase) {
     return { error: new Error('Supabase is not configured') };
   }
 
-  const authState = await getAuthState();
-  const { error } = await supabase.from('contact_messages').insert({
-    user_id: authState.user?.id ?? null,
-    full_name: payload.fullName,
-    email: payload.email,
-    phone: payload.phone || null,
-    subject: payload.subject,
-    message: payload.message
-  });
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const currentUserId = sessionData?.session?.user?.id ?? null;
 
-  return { error };
+    const basePayload = {
+      full_name: (payload.fullName || '').trim(),
+      email: (payload.email || '').trim(),
+      phone: (payload.phone || '').trim() || null,
+      subject: (payload.subject || '').trim(),
+      message: (payload.message || '').trim()
+    };
+
+    let { error } = await supabase.from('contact_messages').insert({
+      ...basePayload,
+      user_id: currentUserId
+    });
+
+    const shouldRetryAsGuest =
+      Boolean(error) &&
+      currentUserId &&
+      /row-level security|violates row-level security policy/i.test(error.message || '');
+
+    if (shouldRetryAsGuest) {
+      const retryResult = await supabase.from('contact_messages').insert(basePayload);
+      error = retryResult.error;
+    }
+
+    return { error: error ?? null };
+  } catch (error) {
+    return { error: error instanceof Error ? error : new Error('Failed to send message') };
+  }
 }

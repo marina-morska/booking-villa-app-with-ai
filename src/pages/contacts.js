@@ -234,16 +234,35 @@ export class Contacts {
     const emailGroup = document.getElementById('contact-email-group');
     const authInfo = document.getElementById('contact-auth-info');
 
-    const authState = await getAuthState();
+    const authState = await this.getSafeAuthState();
     if (authState?.user) {
       nameGroup?.classList.add('d-none');
       emailGroup?.classList.add('d-none');
+      if (nameInput) {
+        nameInput.required = false;
+        nameInput.disabled = true;
+        nameInput.value = this.getContactNameForUser(authState.user);
+      }
+      if (emailInput) {
+        emailInput.required = false;
+        emailInput.disabled = true;
+        emailInput.value = authState.user.email || '';
+      }
       if (authInfo) {
         authInfo.innerHTML = `
           <div class="alert alert-light border mb-3" role="status">
             You are signed in as <strong>${this.escapeHtml(authState.user.email || 'authenticated user')}</strong>. Name and email will be used from your account.
           </div>
         `;
+      }
+    } else {
+      if (nameInput) {
+        nameInput.required = true;
+        nameInput.disabled = false;
+      }
+      if (emailInput) {
+        emailInput.required = true;
+        emailInput.disabled = false;
       }
     }
     
@@ -253,7 +272,7 @@ export class Contacts {
       // Validation
       const errors = [];
 
-      const currentAuthState = await getAuthState();
+      const currentAuthState = await this.getSafeAuthState();
       const isLoggedIn = Boolean(currentAuthState?.user);
       
       const name = isLoggedIn
@@ -292,34 +311,44 @@ export class Contacts {
           '</ul>';
         alertsDiv.appendChild(alert);
       } else {
-        const { error } = await createContactMessage({
-          fullName: name,
-          email,
-          phone: document.getElementById('contact-phone').value,
-          subject,
-          message
-        });
+        try {
+          const { error } = await createContactMessage({
+            fullName: name,
+            email,
+            phone: document.getElementById('contact-phone').value,
+            subject,
+            message
+          });
 
-        if (error) {
+          if (error) {
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'alert alert-danger mb-3';
+            errorAlert.innerHTML = `
+              <strong>Message Not Sent</strong>
+              <p class="mb-0 mt-2">${error.message}</p>
+            `;
+            alertsDiv.appendChild(errorAlert);
+            return;
+          }
+
+          const successAlert = document.createElement('div');
+          successAlert.className = 'alert alert-success mb-3';
+          successAlert.innerHTML = `
+            <strong>Message Sent Successfully!</strong>
+            <p class="mb-0 mt-2">Thank you for contacting us. We will get back to you as soon as possible.</p>
+          `;
+          alertsDiv.appendChild(successAlert);
+
+          form.reset();
+        } catch (error) {
           const errorAlert = document.createElement('div');
           errorAlert.className = 'alert alert-danger mb-3';
           errorAlert.innerHTML = `
             <strong>Message Not Sent</strong>
-            <p class="mb-0 mt-2">${error.message}</p>
+            <p class="mb-0 mt-2">${error instanceof Error ? error.message : 'Unexpected error while sending your message.'}</p>
           `;
           alertsDiv.appendChild(errorAlert);
-          return;
         }
-
-        const successAlert = document.createElement('div');
-        successAlert.className = 'alert alert-success mb-3';
-        successAlert.innerHTML = `
-          <strong>Message Sent Successfully!</strong>
-          <p class="mb-0 mt-2">Thank you for contacting us. We will get back to you as soon as possible.</p>
-        `;
-        alertsDiv.appendChild(successAlert);
-
-        form.reset();
       }
     });
   }
@@ -327,6 +356,14 @@ export class Contacts {
   isValidEmail(email) {
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return re.test(email);
+  }
+
+  async getSafeAuthState() {
+    try {
+      return await getAuthState();
+    } catch {
+      return { user: null, role: 'guest', configured: false };
+    }
   }
 
   getContactNameForUser(user) {
